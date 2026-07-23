@@ -195,6 +195,7 @@ function initSetup(){
   renderSetup();
 }
 initSetup();
+checkResume();
 
 document.getElementById('addPlayerBtn').addEventListener('click', ()=>{
   if(setupPlayers.length>=4){ alert('En fazla 4 oyuncu ile oynanabilir.'); return; }
@@ -204,17 +205,45 @@ document.getElementById('addPlayerBtn').addEventListener('click', ()=>{
   renderSetup();
 });
 
+document.querySelectorAll('input[name="userMode"]').forEach(r=>{
+  r.addEventListener('change', ()=>{
+    const mode = document.querySelector('input[name="userMode"]:checked').value;
+    document.getElementById('parentPassBox').style.display = (mode==='parent') ? 'block' : 'none';
+  });
+});
+
 document.getElementById('startGameBtn').addEventListener('click', ()=>{
   if(setupPlayers.length<2){ alert('En az 2 oyuncu gerekli.'); return; }
   for(const p of setupPlayers){
     if(!p.name.trim()){ alert('Tüm oyuncuların bir adı olmalı.'); return; }
   }
-  startGame();
+  const modeInput = document.querySelector('input[name="userMode"]:checked');
+  const mode = modeInput ? modeInput.value : 'child';
+  if(mode==='parent'){
+    const pass = document.getElementById('parentPass').value;
+    if(pass !== '1247'){ alert('Ebeveyn şifresi yanlış!'); return; }
+  }
+  clearState();
+  startGame(mode);
+});
+
+document.getElementById('resumeBtn').addEventListener('click', ()=>{
+  const saved = loadState();
+  if(!saved){ alert('Kayıtlı oyun bulunamadı.'); checkResume(); return; }
+  G = saved;
+  G.timerHandle = null;
+  document.getElementById('setupScreen').style.display='none';
+  document.getElementById('gameScreen').style.display='block';
+  renderBoard();
+  renderPlayerTabs();
+  renderFinance();
+  updateTopbar();
+  resumeGame();
 });
 
 /* ============================ OYUN BAŞLATMA ============================ */
 
-function startGame(){
+function startGame(mode){
   const cellsCopy = CELLS.map(c=>({...c}));
   const players = setupPlayers.map((p,i)=>({
     id:i, name:p.name, type:p.type, token:p.token, money:150000, position:0,
@@ -223,6 +252,7 @@ function startGame(){
 
   G = {
     cells: cellsCopy, players, kasa:0, current:0, timeLeft: 30*60,
+    mode: mode || 'child',
     gameOver:false, awaitingAction:false, timerHandle:null
   };
 
@@ -239,17 +269,26 @@ function startGame(){
 }
 
 function startTimer(){
+  if(G.mode==='parent'){
+    updateTimerDisplay();
+    return; // ebeveyn modunda süre sınırı yok
+  }
   G.timerHandle = setInterval(()=>{
     if(G.gameOver) return;
     G.timeLeft--;
     updateTimerDisplay();
     if(G.timeLeft<=0){
-      endGame('Süre doldu! (30 dakika)');
+      pauseGame('⏰ 30 dakikalık çocuk süresi doldu!', true);
     }
   },1000);
 }
 
 function updateTimerDisplay(){
+  if(!G) return;
+  if(G.mode==='parent'){
+    document.getElementById('timerDisplay').textContent = '👨‍👩‍👧 Sınırsız';
+    return;
+  }
   const m = Math.floor(G.timeLeft/60);
   const s = G.timeLeft%60;
   document.getElementById('timerDisplay').textContent =
@@ -262,26 +301,137 @@ function updateTopbar(){
   const cp = G.players[G.current];
   document.getElementById('turnInfo').textContent = cp ? ('Sırada: '+cp.name+(cp.type==='cpu'?' 🤖':' 👤')) : '-';
   document.getElementById('curPlayerName').textContent = cp ? cp.name : '-';
+  saveState();
 }
 
 /* ============================ TAB YÖNETİMİ ============================ */
 
-document.getElementById('tabBoardBtn').addEventListener('click', ()=>{
-  document.getElementById('boardTab').classList.add('show');
-  document.getElementById('financeTab').classList.remove('show');
-  document.getElementById('tabBoardBtn').classList.add('active');
-  document.getElementById('tabFinanceBtn').classList.remove('active');
-});
-document.getElementById('tabFinanceBtn').addEventListener('click', ()=>{
-  document.getElementById('financeTab').classList.add('show');
-  document.getElementById('boardTab').classList.remove('show');
-  document.getElementById('tabFinanceBtn').classList.add('active');
-  document.getElementById('tabBoardBtn').classList.remove('active');
-  renderFinance();
-});
+function switchTab(name){
+  ['boardTab','financeTab','helpTab'].forEach(id=>document.getElementById(id).classList.remove('show'));
+  ['tabBoardBtn','tabFinanceBtn','tabHelpBtn'].forEach(id=>document.getElementById(id).classList.remove('active'));
+  document.getElementById(name+'Tab').classList.add('show');
+  document.getElementById('tab'+name.charAt(0).toUpperCase()+name.slice(1)+'Btn').classList.add('active');
+  if(name==='finance') renderFinance();
+}
+document.getElementById('tabBoardBtn').addEventListener('click', ()=>switchTab('board'));
+document.getElementById('tabFinanceBtn').addEventListener('click', ()=>switchTab('finance'));
+document.getElementById('tabHelpBtn').addEventListener('click', ()=>switchTab('help'));
+
 document.getElementById('endGameBtn').addEventListener('click', ()=>{
-  if(confirm('Oyunu sonlandırmak istediğinize emin misiniz?')) endGame('Oyun manuel olarak sonlandırıldı.');
+  if(confirm('Oyunu duraklatmak istediğinize emin misiniz? Daha sonra kaldığınız yerden devam edebilirsiniz.')){
+    pauseGame('Oyun kullanıcı tarafından duraklatıldı.', false);
+  }
 });
+
+/* ============================ KAYIT / DEVAM ETME ============================ */
+
+const SAVE_KEY = 'molicity_save_v1';
+
+function saveState(){
+  if(!G) return;
+  try{
+    const copy = {...G, timerHandle:null};
+    localStorage.setItem(SAVE_KEY, JSON.stringify(copy));
+  }catch(e){ /* localStorage kullanılamıyor olabilir, sessizce geç */ }
+}
+function loadState(){
+  try{
+    const raw = localStorage.getItem(SAVE_KEY);
+    if(!raw) return null;
+    return JSON.parse(raw);
+  }catch(e){ return null; }
+}
+function clearState(){
+  try{ localStorage.removeItem(SAVE_KEY); }catch(e){}
+}
+function checkResume(){
+  const saved = loadState();
+  const box = document.getElementById('resumeBox');
+  if(box) box.style.display = saved ? 'block' : 'none';
+}
+
+function pauseGame(reason, requirePassword){
+  if(!G || G.gameOver) return;
+  G.gameOver = true;
+  clearInterval(G.timerHandle);
+  G.timerHandle = null;
+  document.getElementById('rollBtn').disabled = true;
+  saveState();
+  showEndModal(reason, requirePassword);
+}
+
+function resumeGame(){
+  if(!G) return;
+  G.gameOver = false;
+  document.getElementById('rollBtn').disabled = false;
+  if(G.mode==='child' && !G.timerHandle){ startTimer(); }
+  updateTopbar();
+  renderFinance();
+  refreshTokensOnBoard();
+  refreshOwnershipMarks();
+  saveState();
+  beginTurn();
+}
+
+function computeRanking(){
+  return G.players.map(p=>{
+    let value = p.money;
+    p.properties.forEach(i=>{
+      const c = G.cells[i];
+      value += c.mortgaged ? c.price/2 : c.price;
+      if(c.type==='property' && c.houses>0 && c.houses<5) value += c.houseCost*c.houses;
+      if(c.type==='property' && c.houses===5) value += c.houseCost*4;
+    });
+    return {id:p.id, name:p.name, value, bankrupt:p.bankrupt};
+  }).sort((a,b)=>b.value-a.value);
+}
+
+function showEndModal(reason, requirePassword){
+  const ranking = computeRanking();
+  playWinSound();
+  setTimeout(playLoseSound, 500);
+  let html = `<h3>⏸️ Oyun Duraklatıldı</h3><p>${reason}</p><ol style="text-align:left;">`;
+  ranking.forEach((r,i)=>{
+    html += `<li><b>${r.name}</b> — ${fmt(r.value)} ${r.bankrupt?'(İflas etti)':''} ${i===0?'👑':''}</li>`;
+  });
+  html += `</ol>`;
+
+  if(requirePassword){
+    html += `<div style="margin-top:10px;">
+        <input type="password" id="resumePassInput" placeholder="Ebeveyn şifresi">
+        <button class="btn-buy" id="resumePassBtn">Devam Et</button>
+      </div>
+      <p class="hint">Şifre girmezseniz oyun duraklatılmış kalır; daha sonra ana menüden "Kaldığın Yerden Devam Et" ile şifreyi girerek sürdürebilirsiniz.</p>
+      <div class="btnrow"><button class="btn-neutral" id="backToMenuBtn">Ana Menüye Dön</button></div>`;
+    showModal(html);
+    document.getElementById('resumePassBtn').onclick = ()=>{
+      const val = document.getElementById('resumePassInput').value;
+      if(val==='1247'){
+        G.mode='parent';
+        log('👨‍👩‍👧 Ebeveyn şifresi doğrulandı, süre sınırı kaldırıldı.');
+        closeModal();
+        resumeGame();
+      } else {
+        alert('Şifre yanlış!');
+      }
+    };
+    document.getElementById('backToMenuBtn').onclick = ()=>{
+      closeModal();
+      saveState();
+      location.reload();
+    };
+  } else {
+    html += `<div class="btnrow">
+        <button class="btn-buy" id="continueBtn">▶️ Devam Et</button>
+        <button class="btn-neutral" id="newGameBtn">🆕 Yeni Oyun</button>
+      </div>`;
+    showModal(html);
+    document.getElementById('continueBtn').onclick = ()=>{ closeModal(); resumeGame(); };
+    document.getElementById('newGameBtn').onclick = ()=>{ clearState(); location.reload(); };
+  }
+  log(`⏸️ Oyun duraklatıldı: ${reason}`);
+}
+
 
 /* ============================ TAHTA ÇİZİMİ ============================ */
 
@@ -479,21 +629,41 @@ function rollTwoDice(){
   return [1+Math.floor(Math.random()*6), 1+Math.floor(Math.random()*6)];
 }
 
+function animateDiceRoll(finalD1, finalD2, onDone){
+  playDiceSound();
+  const d1el = document.getElementById('die1');
+  const d2el = document.getElementById('die2');
+  d1el.classList.add('rolling');
+  d2el.classList.add('rolling');
+  const tick = setInterval(()=>{
+    d1el.textContent = 1+Math.floor(Math.random()*6);
+    d2el.textContent = 1+Math.floor(Math.random()*6);
+  }, 100);
+  setTimeout(()=>{
+    clearInterval(tick);
+    d1el.classList.remove('rolling');
+    d2el.classList.remove('rolling');
+    d1el.textContent = finalD1;
+    d2el.textContent = finalD2;
+    onDone();
+  }, 3000);
+}
+
 function humanRoll(){
   const p = G.players[G.current];
   const [d1,d2] = rollTwoDice();
-  showDice(d1,d2);
   document.getElementById('rollBtn').disabled = true;
 
-  if(p.inJail){
-    handleJailRoll(p, d1, d2);
-    return;
-  }
-
-  resolveDoubleTracking(p, d1, d2, ()=>{
-    movePlayer(p, d1+d2, ()=>{
-      landOnCell(p, ()=>{
-        afterLanding(p, d1===d2);
+  animateDiceRoll(d1, d2, ()=>{
+    if(p.inJail){
+      handleJailRoll(p, d1, d2);
+      return;
+    }
+    resolveDoubleTracking(p, d1, d2, ()=>{
+      movePlayer(p, d1+d2, ()=>{
+        landOnCell(p, ()=>{
+          afterLanding(p, d1===d2);
+        });
       });
     });
   });
@@ -539,7 +709,7 @@ function nextPlayer(){
   if(G.gameOver) return;
   const activeCount = G.players.filter(p=>!p.bankrupt).length;
   if(activeCount<=1){
-    endGame('Sadece bir oyuncu kaldı!');
+    pauseGame('Sadece bir oyuncu kaldı!', false);
     return;
   }
   do{
@@ -558,6 +728,7 @@ function movePlayer(p, steps, cb){
   if(np < old){ // başlangıçtan geçti
     p.money += 20000;
     log(`💰 <b>${p.name}</b> Başlangıç noktasından geçti, 20.000$ aldı.`);
+    playPassStartSound();
   }
   p.position = np;
   refreshTokensOnBoard();
@@ -572,6 +743,7 @@ function moveToNamed(p, name, collectIfPass, cb){
   if(collectIfPass!==false && idx < old){
     p.money += 20000;
     log(`💰 <b>${p.name}</b> Başlangıç noktasından geçti, 20.000$ aldı.`);
+    playPassStartSound();
   }
   p.position = idx;
   refreshTokensOnBoard();
@@ -596,6 +768,7 @@ function landOnCell(p, cb){
     if(cell.sub==='gotojail'){
       sendToJail(p);
     } else if(cell.sub==='freeparking'){
+      playBankSound();
       if(G.kasa>0){
         p.money += G.kasa;
         log(`🏦 <b>${p.name}</b> Dünya Bankası'na geldi ve kasadaki ${fmt(G.kasa)} parayı aldı!`);
@@ -694,6 +867,7 @@ function buyProperty(p, cb){
   p.money -= cell.price;
   cell.owner = p.id;
   p.properties.push(p.position);
+  playBuyPropertySound();
   log(`🏷️ <b>${p.name}</b>, ${cell.name} mülkünü ${fmt(cell.price)} karşılığında satın aldı.`);
   refreshOwnershipMarks();
   renderFinance();
@@ -896,8 +1070,7 @@ function cpuHandleJail(p, afterCb){
     return;
   }
   const [d1,d2] = rollTwoDice();
-  showDice(d1,d2);
-  handleJailRoll(p, d1, d2);
+  animateDiceRoll(d1, d2, ()=>handleJailRoll(p, d1, d2));
 }
 
 /* ============================ BİNA / İPOTEK İŞLEMLERİ ============================ */
@@ -911,6 +1084,7 @@ function buildHouse(cellIdx){
   if(p.money < cell.houseCost){ alert('Yeterli paranız yok!'); return; }
   p.money -= cell.houseCost;
   cell.houses++;
+  if(cell.houses===5){ playPlazaSound(); } else { playBuyHouseSound(); }
   log(`🏗️ <b>${p.name}</b>, ${cell.name} üzerine ${cell.houses===5?'plaza':'ev'} inşa etti.`);
   renderFinance(); updateTopbar();
 }
@@ -977,6 +1151,7 @@ function checkBankruptcyThen(p, cb){
       c.owner=null; c.mortgaged=false; c.houses=0;
     });
     p.properties = [];
+    playBankruptSound();
     log(`💥 <b>${p.name}</b> İFLAS ETTİ ve oyundan çekildi!`);
     refreshOwnershipMarks();
   }
@@ -994,14 +1169,14 @@ function cpuTakeTurn(p){
   }
   const [d1,d2] = rollTwoDice();
   lastDiceTotal = d1+d2;
-  showDice(d1,d2);
-  log(`🤖 <b>${p.name}</b> zar attı: ${d1} + ${d2} = ${d1+d2}`);
-
-  resolveDoubleTracking(p, d1, d2, ()=>{
-    movePlayer(p, d1+d2, ()=>{
-      landOnCell(p, ()=>{
-        cpuMaybeBuild(p);
-        afterLanding(p, d1===d2);
+  animateDiceRoll(d1, d2, ()=>{
+    log(`🤖 <b>${p.name}</b> zar attı: ${d1} + ${d2} = ${d1+d2}`);
+    resolveDoubleTracking(p, d1, d2, ()=>{
+      movePlayer(p, d1+d2, ()=>{
+        landOnCell(p, ()=>{
+          cpuMaybeBuild(p);
+          afterLanding(p, d1===d2);
+        });
       });
     });
   });
@@ -1023,6 +1198,7 @@ function cpuMaybeBuild(p){
       if(target.houses<5 && !target.mortgaged && p.money > target.houseCost*3){
         p.money -= target.houseCost;
         target.houses++;
+        if(target.houses===5){ playPlazaSound(); } else { playBuyHouseSound(); }
         log(`🤖 <b>${p.name}</b>, ${target.name} üzerine ${target.houses===5?'plaza':'ev'} yaptı.`);
       }
     }
@@ -1040,35 +1216,60 @@ function closeModal(){
   document.getElementById('modalOverlay').style.display='none';
 }
 
-/* ============================ OYUN SONU ============================ */
+/* ============================ SES MOTORU (Web Audio API — dosya gerekmez) ============================ */
 
-function endGame(reason){
-  if(G.gameOver) return;
-  G.gameOver = true;
-  clearInterval(G.timerHandle);
-  document.getElementById('rollBtn').disabled = true;
+let _actx = null;
+function getAudioCtx(){
+  if(!_actx){
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if(!Ctx) return null;
+    _actx = new Ctx();
+  }
+  if(_actx.state==='suspended') _actx.resume();
+  return _actx;
+}
 
-  const ranking = G.players.map(p=>{
-    let value = p.money;
-    p.properties.forEach(i=>{
-      const c = G.cells[i];
-      if(c.mortgaged){
-        value += (c.type==='utility'?c.price:c.price)/2;
-      } else {
-        value += c.price;
-      }
-      if(c.type==='property' && c.houses>0 && c.houses<5) value += c.houseCost*c.houses;
-      if(c.type==='property' && c.houses===5) value += c.houseCost*4; // otel değeri basitleştirilmiş
-    });
-    return {name:p.name, value, bankrupt:p.bankrupt};
-  }).sort((a,b)=>b.value-a.value);
+function beep(freq, duration, type, delay, vol){
+  const ctx = getAudioCtx();
+  if(!ctx) return;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type || 'sine';
+  osc.frequency.value = freq;
+  const start = ctx.currentTime + (delay||0);
+  gain.gain.setValueAtTime(0.0001, start);
+  gain.gain.linearRampToValueAtTime(vol||0.2, start+0.01);
+  gain.gain.exponentialRampToValueAtTime(0.0001, start+duration);
+  osc.connect(gain); gain.connect(ctx.destination);
+  osc.start(start);
+  osc.stop(start+duration+0.03);
+}
 
-  let html = `<h3>🏁 Oyun Bitti</h3><p>${reason}</p><ol style="text-align:left;">`;
-  ranking.forEach((r,i)=>{
-    html += `<li><b>${r.name}</b> — ${fmt(r.value)} ${r.bankrupt?'(İflas etti)':''} ${i===0?'👑':''}</li>`;
-  });
-  html += `</ol><p style="font-weight:bold;color:#2e7d32;">Kazanan: ${ranking[0].name}!</p>
-           <div class="btnrow"><button class="btn-neutral" onclick="location.reload()">Yeniden Başla</button></div>`;
-  showModal(html);
-  log(`🏁 OYUN SONA ERDİ: ${reason} Kazanan: <b>${ranking[0].name}</b>`);
+function playDiceSound(){
+  for(let i=0;i<6;i++){ beep(180+Math.random()*350, 0.06, 'square', i*0.09, 0.15); }
+}
+function playPassStartSound(){ // Başlangıçtan geçme sesi
+  [523.25,659.25,783.99,1046.5].forEach((f,i)=>beep(f,0.18,'sine',i*0.11,0.2));
+}
+function playBankSound(){ // Dünya Bankası'na (kasa/free parking) geliş sesi — farklı ton
+  [659.25,880,987.77,1318.5].forEach((f,i)=>beep(f,0.16,'triangle',i*0.1,0.22));
+}
+function playBuyPropertySound(){ // Arsa satın alma
+  [440,554.37,659.25].forEach((f,i)=>beep(f,0.16,'sine',i*0.1,0.2));
+}
+function playBuyHouseSound(){ // Ev alma
+  [329.63,415.3,493.88,659.25].forEach((f,i)=>beep(f,0.12,'square',i*0.08,0.16));
+}
+function playPlazaSound(){ // Plaza — alkış benzeri + zafer akoru
+  for(let i=0;i<14;i++){ beep(150+Math.random()*900, 0.045,'sawtooth', i*0.028, 0.09); }
+  [523.25,659.25,783.99,1046.5].forEach((f,i)=>beep(f,0.3,'sine',0.4+i*0.06,0.2));
+}
+function playBankruptSound(){ // İflas — olumsuz
+  [392,349.23,311.13,261.63,220].forEach((f,i)=>beep(f,0.26,'sawtooth',i*0.18,0.2));
+}
+function playLoseSound(){ // Oyunu kaybetme — farklı olumsuz
+  [293.66,261.63,220,196,146.83].forEach((f,i)=>beep(f,0.35,'square',i*0.22,0.22));
+}
+function playWinSound(){ // Kazanma
+  [523.25,659.25,783.99,1046.5,1318.5].forEach((f,i)=>beep(f,0.22,'sine',i*0.1,0.22));
 }
