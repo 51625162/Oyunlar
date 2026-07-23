@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MOLİCİTY - Dünya Ticaret Oyunu</title>
+<link rel="stylesheet" href="molicity-style.css">
+</head>
+<body>
+
+<div id="setupScreen">
+  <h1>MOLİ<span>CİTY</span></h1>
+  <p style="text-align:center;margin-top:-10px;color:#555;">Dünya Ticaret Oyunu — Dijital Sürüm</p>
+
+  <div id="resumeBox" style="display:none;text-align:center;margin-bottom:14px;">
+    <button class="primary" id="resumeBtn" style="background:#2e7d32;">▶️ Kaldığın Yerden Devam Et</button>
+  </div>
+
+  <div class="playerRow" style="flex-direction:column;align-items:flex-start;gap:8px;">
+    <b>Kullanıcı Tipi</b>
+    <label><input type="radio" name="userMode" value="child" checked> 👶 Çocuk — 30 dakika süre sınırı</label>
+    <label><input type="radio" name="userMode" value="parent"> 👨‍👩‍👧 Ebeveyn — şifreli, sınırsız süre</label>
+    <div id="parentPassBox" style="display:none;width:100%;">
+      <input type="password" id="parentPass" placeholder="Ebeveyn şifresi" style="padding:8px;border-radius:6px;border:1px solid #ccc;width:100%;">
+    </div>
+  </div>
+
+  <div id="playerList"></div>
+  <button id="addPlayerBtn">+ Oyuncu Ekle</button>
+  <p class="hint">2-4 oyuncu ekleyebilirsiniz. Her oyuncu insan ya da bilgisayar (otomatik) olabilir. Çocuk modunda oyun süresi en fazla 30 dakikadır; süre dolunca oyun duraklar ve ebeveyn şifresiyle devam edilebilir. Ebeveyn modunda süre sınırı yoktur. Oyun duraklatıldığında/bittiğinde kaldığı yerden daha sonra devam edilebilir.</p>
+  <button class="primary" id="startGameBtn">OYUNU BAŞLAT</button>
+</div>
+
+<div id="gameScreen">
+  <div id="topbar">
+    <div id="timerDisplay">30:00</div>
+    <div id="turnInfo">-</div>
+    <div id="kasaDisplay">Kasa: $0</div>
+    <button class="tabbtn active" id="tabBoardBtn">🗺️ Harita</button>
+    <button class="tabbtn" id="tabFinanceBtn">💼 Bütçe &amp; Mülklerim</button>
+    <button class="tabbtn" id="tabHelpBtn">❓ Nasıl Oynanır</button>
+    <button id="endGameBtn">Oyunu Sonlandır</button>
+  </div>
+
+  <div id="boardTab" class="show">
+    <div class="boardWrap">
+      <div class="board" id="board"></div>
+      <div style="flex:1;min-width:260px;">
+        <div style="background:#fff;border-radius:12px;padding:12px;">
+          <h2 style="margin-top:0;">🎲 Sıra: <span id="curPlayerName">-</span></h2>
+          <div id="diceBox">
+            <div class="die" id="die1">-</div>
+            <div class="die" id="die2">-</div>
+          </div>
+          <button id="rollBtn">Zar At</button>
+          <div id="actionArea"></div>
+          <h3>Oyun Günlüğü</h3>
+          <div id="log"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="financeTab">
+    <div class="playerTabs" id="playerTabs"></div>
+    <div class="financeCard" id="financeCard"></div>
+  </div>
+
+  <div id="helpTab">
+    <div class="financeCard">
+      <h2>❓ Nasıl Oynanır</h2>
+      <h3>🎲 Temel Akış</h3>
+      <ul>
+        <li>Sırası gelen oyuncu iki zar atar; pionu attığı zar toplamı kadar ilerletilir.</li>
+        <li>Zar atıldığında ekranda 3 saniye boyunca zar animasyonu ve sesi çalar, ardından gelen sayı gösterilir.</li>
+        <li>Çift zar atan oyuncu tekrar zar atar. Art arda 3. kez çift zar atılırsa doğrudan Sınır Dışı'na (Havaalanı) gönderilir.</li>
+        <li>Başlangıç noktasından her geçişte (üzerinde durmaya gerek olmadan) 20.000$ alınır.</li>
+      </ul>
+      <h3>🏷️ Mülkler</h3>
+      <ul>
+        <li>Sahipsiz bir arsa/kamu kuruluğuna gelindiğinde satın alınabilir. Alınmazsa boş kalır.</li>
+        <li>Başka bir oyuncuya ait mülke gelindiğinde kira otomatik ödenir.</li>
+        <li>Bir renk grubundaki tüm arsalara sahip olan oyuncu, o gruba ev ve plaza (otel) inşa edebilir. Plaza için önce 4 ev gerekir.</li>
+        <li>Kamu kuruluşlarının (Demir Yolu, Hava Yolu, Körfez Limanı, Şangay Limanı, Nükleer Santral, Sosyal Medya) kirası atılan zarın 500 katı; birden fazlasına sahipseniz 1000 katıdır.</li>
+        <li>Nakit sıkıntısında mülkler ipotek edilebilir (yarı fiyatına), ipoteği kaldırmak için %10 faiziyle geri ödenir.</li>
+      </ul>
+      <h3>🎴 Şans ve Hazine Bonusu</h3>
+      <p>Bu hücrelere gelindiğinde otomatik kart çekilir: para alma/ödeme, taşınma, Sınır Dışı'na gönderilme veya Af Kartı kazanma gibi etkiler uygulanır.</p>
+      <h3>🚫 Sınır Dışı (Havaalanı)</h3>
+      <ul>
+        <li>Sınır Dışı edilen oyuncu sırasında zar atar; çift gelirse serbest kalır.</li>
+        <li>İsterse 5.000$ ceza ödeyip ya da Af Kartı kullanıp çıkabilir.</li>
+        <li>3 tur boyunca çift gelmezse otomatik olarak 5.000$ ceza ödenip çıkılır.</li>
+      </ul>
+      <h3>🏦 Dünya Bankası</h3>
+      <p>Vergi ve cezalardan biriken "Kasa" parası burada tutulur. Bu hücreye gelen oyuncu (üzerinde durarak) kasadaki tüm parayı alır.</p>
+      <h3>💥 İflas</h3>
+      <p>Parası eksiye düşen oyuncu önce mülklerini ipotek eder; yine de borcunu kapatamazsa iflas eder ve oyundan çekilir; mülkleri sahipsiz kalır.</p>
+      <h3>👶 Çocuk / 👨‍👩‍👧 Ebeveyn Modu</h3>
+      <ul>
+        <li><b>Çocuk modu:</b> Oyun en fazla 30 dakika sürer. Süre dolunca oyun duraklar; devam etmek için ebeveyn şifresi girilmelidir.</li>
+        <li><b>Ebeveyn modu:</b> Şifre (kurulumda girilir) ile başlatılır, süre sınırı yoktur.</li>
+        <li>Oyun duraklatıldığında veya süresi dolduğunda ilerleme kaydedilir; ana ekrandaki "Kaldığın Yerden Devam Et" butonuyla aynı noktadan sürdürülebilir.</li>
+      </ul>
+      <h3>🏆 Kazanma</h3>
+      <p>Süre dolduğunda ya da sadece bir oyuncu kalana kadar iflas etmeler devam ettiğinde, nakit + mülk değeri en yüksek olan oyuncu kazanır.</p>
+    </div>
+  </div>
+</div>
+
+<div id="modalOverlay">
+  <div id="modalBox"></div>
+</div>
+
+<script src="molicity-script.js"></script>
+</body>
+</html>
