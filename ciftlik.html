@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ÇİFTLİK OYUNU T</title>
+<link rel="stylesheet" href="ciftlik-style.css">
+</head>
+<body>
+
+<div id="setupScreen">
+  <h1>🚜 ÇİFTLİK <span>OYUNU T</span></h1>
+  <p class="subtitle">Ek, büyüt, hasat et, hayvanları besle — kendi çiftliğini kur!</p>
+
+  <div id="resumeBox" style="display:none;text-align:center;margin-bottom:14px;">
+    <button class="primary" id="resumeBtn" style="background:#2e7d32;">▶️ Kaldığın Yerden Devam Et</button>
+  </div>
+
+  <div class="modeBox">
+    <b>Kullanıcı Tipi</b>
+    <label><input type="radio" name="userMode" value="child" checked> 👶 Çocuk — 30 dakika süre sınırı</label>
+    <label><input type="radio" name="userMode" value="parent"> 👨‍👩‍👧 Ebeveyn — şifreli, sınırsız süre</label>
+    <div id="parentPassBox" style="display:none;">
+      <input type="password" id="parentPass" placeholder="Ebeveyn şifresi">
+    </div>
+  </div>
+
+  <p class="hint">Çocuk modunda oyun en fazla 30 dakika sürer; süre dolunca duraklar ve ebeveyn şifresiyle devam edilebilir. Ebeveyn modunda süre sınırı yoktur. İlerlemeniz otomatik kaydedilir, daha sonra kaldığınız yerden devam edebilirsiniz.</p>
+  <button class="primary" id="startGameBtn">ÇİFTLİĞE BAŞLA</button>
+</div>
+
+<div id="gameScreen">
+  <div id="topbar">
+    <div class="stat">💰 <span id="coinsDisplay">0</span></div>
+    <div class="stat">⭐ Seviye <span id="levelDisplay">1</span></div>
+    <div class="stat" id="xpBarWrap"><div id="xpBarFill"></div></div>
+    <div id="timerDisplay">30:00</div>
+    <button class="tabbtn active" id="tabFarmBtn">🌱 Tarla</button>
+    <button class="tabbtn" id="tabBarnBtn">🐔 Ahır</button>
+    <button class="tabbtn" id="tabHelpBtn">❓ Nasıl Oynanır</button>
+    <button id="endGameBtn">Oyunu Sonlandır</button>
+  </div>
+
+  <div id="farmTab" class="show">
+    <h2>🌱 Tarlan</h2>
+    <div class="grid" id="farmGrid"></div>
+  </div>
+
+  <div id="barnTab">
+    <h2>🐔 Ahırın</h2>
+    <div class="grid" id="barnGrid"></div>
+  </div>
+
+  <div id="helpTab">
+    <div class="card">
+      <h2>❓ Nasıl Oynanır</h2>
+      <h3>🌱 Tarla</h3>
+      <ul>
+        <li>Boş bir tarlaya tıklayıp tohum seçerek ekim yapabilirsin (tohum parayla satın alınır).</li>
+        <li>Ekin belirli bir süre sonra olgunlaşır; olgunlaşan tarla parlar ve "Hasat Et!" yazar.</li>
+        <li>Olgunlaşmış tarlaya tıklayınca hasat edilir, para ve tecrübe (XP) kazanılır.</li>
+      </ul>
+      <h3>🐔 Ahır</h3>
+      <ul>
+        <li>Boş bir ahır bölmesine hayvan satın alıp yerleştirebilirsin.</li>
+        <li>Hayvanı beslemek için ücret ödenir; belirli bir süre sonra ürün (yumurta, süt vb.) hazır olur.</li>
+        <li>Ürünü topladığında para ve XP kazanırsın; hayvanı tekrar beslemen gerekir.</li>
+      </ul>
+      <h3>⭐ Seviye</h3>
+      <p>Hasat ve ürün toplama ile kazanılan XP ile seviye atlarsın. Her seviye atlayışında kutlama sesi çalar.</p>
+      <h3>👶 Çocuk / 👨‍👩‍👧 Ebeveyn Modu</h3>
+      <ul>
+        <li>Çocuk modunda oyun 30 dakika sonra duraklar; devam etmek için ebeveyn şifresi gerekir.</li>
+        <li>Ebeveyn modunda süre sınırı yoktur.</li>
+        <li>Oyun duraklatıldığında ilerleme kaydedilir; ana ekrandan "Kaldığın Yerden Devam Et" ile sürdürülebilir.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="log"></div>
+</div>
+
+<div id="modalOverlay">
+  <div id="modalBox"></div>
+</div>
+
+<script src="ciftlik-script.js"></script>
+</body>
+</html>
