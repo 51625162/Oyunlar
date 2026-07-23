@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MOLİCİTY - Dünya Ticaret Oyunu</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="setupScreen">
+  <h1>MOLİ<span>CİTY</span></h1>
+  <p style="text-align:center;margin-top:-10px;color:#555;">Dünya Ticaret Oyunu — Dijital Sürüm</p>
+  <div id="playerList"></div>
+  <button id="addPlayerBtn">+ Oyuncu Ekle</button>
+  <p class="hint">2-4 oyuncu ekleyebilirsiniz. Her oyuncu insan ya da bilgisayar (otomatik) olabilir. Oyun süresi en fazla 30 dakikadır, süre dolduğunda oyun otomatik olarak biter ve en zengin oyuncu kazanır.</p>
+  <button class="primary" id="startGameBtn">OYUNU BAŞLAT</button>
+</div>
+
+<div id="gameScreen">
+  <div id="topbar">
+    <div id="timerDisplay">30:00</div>
+    <div id="turnInfo">-</div>
+    <div id="kasaDisplay">Kasa: $0</div>
+    <button class="tabbtn active" id="tabBoardBtn">🗺️ Harita</button>
+    <button class="tabbtn" id="tabFinanceBtn">💼 Bütçe &amp; Mülklerim</button>
+    <button id="endGameBtn">Oyunu Sonlandır</button>
+  </div>
+
+  <div id="boardTab" class="show">
+    <div class="boardWrap">
+      <div class="board" id="board"></div>
+      <div style="flex:1;min-width:260px;">
+        <div style="background:#fff;border-radius:12px;padding:12px;">
+          <h2 style="margin-top:0;">🎲 Sıra: <span id="curPlayerName">-</span></h2>
+          <div id="diceBox">
+            <div class="die" id="die1">-</div>
+            <div class="die" id="die2">-</div>
+          </div>
+          <button id="rollBtn">Zar At</button>
+          <div id="actionArea"></div>
+          <h3>Oyun Günlüğü</h3>
+          <div id="log"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="financeTab">
+    <div class="playerTabs" id="playerTabs"></div>
+    <div class="financeCard" id="financeCard"></div>
+  </div>
+</div>
+
+<div id="modalOverlay">
+  <div id="modalBox"></div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
