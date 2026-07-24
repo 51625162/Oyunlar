@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PANDOMİM</title>
+<link rel="stylesheet" href="pandomim-style.css">
+</head>
+<body>
+
+<div id="setupScreen">
+  <h1>🎭 <span>PANDOMİM</span></h1>
+  <p class="subtitle">Resmi anlat, yasaklı kelimeleri kullanma, takım arkadaşın bilsin!</p>
+
+  <div id="resumeBox" style="display:none;text-align:center;margin-bottom:14px;">
+    <button class="primary" id="resumeBtn" style="background:#2e7d32;">▶️ Kaldığın Yerden Devam Et</button>
+  </div>
+
+  <div class="modeBox">
+    <b>Kullanıcı Tipi</b>
+    <label><input type="radio" name="userMode" value="child" checked> 👶 Çocuk — günlük 30 dakika süre sınırı</label>
+    <label><input type="radio" name="userMode" value="parent"> 👨‍👩‍👧 Ebeveyn — şifreli, sınırsız süre</label>
+    <div id="parentPassBox" style="display:none;">
+      <input type="password" id="parentPass" placeholder="Ebeveyn şifresi">
+    </div>
+  </div>
+
+  <div class="modeBox">
+    <b>Oyun Tarzı</b>
+    <label><input type="radio" name="gameStyle" value="individual" checked> 👤 Bireysel — herkes kendi puanına oynar</label>
+    <label><input type="radio" name="gameStyle" value="team"> 👥 Takım — takımlar birbirine karşı oynar</label>
+  </div>
+
+  <div id="participantsBox">
+    <b id="participantsLabel">Oyuncular</b>
+    <div id="participantsList"></div>
+    <button id="addParticipantBtn">+ Ekle</button>
+  </div>
+
+  <div class="modeBox">
+    <b>Kategoriler</b>
+    <div id="categoryBox"></div>
+  </div>
+
+  <div class="roundBox">
+    <b>Kaç Tur? (Her katılımcı sırayla anlatır)</b>
+    <select id="roundCount">
+      <option value="1">1 Tur</option>
+      <option value="2">2 Tur</option>
+      <option value="3" selected>3 Tur</option>
+      <option value="4">4 Tur</option>
+      <option value="5">5 Tur</option>
+    </select>
+  </div>
+
+  <p class="hint">Her el 60 saniye sürer. Her elde en fazla 3 kez "Pas" hakkı vardır. Anlatan kişi resmi görür; yasaklı kelimeleri söylerse "Hatalı" düğmesine basılır. Süre dolunca otomatik uyarı sesi çalar. Çocuk modunda günlük toplam süre 30 dakikadır ve MOLİCİTY/UNO ile ortaktır.</p>
+  <button class="primary" id="startGameBtn">OYUNA BAŞLA</button>
+</div>
+
+<div id="gameScreen">
+  <div id="topbar">
+    <div id="roundInfo" class="stat">Tur 1/3</div>
+    <div id="timerDisplay">60</div>
+    <div id="passInfo" class="stat">🚫 Pas: 3/3</div>
+    <div id="scoreboard"></div>
+    <button class="tabbtn active" id="tabPlayBtn">🎭 Oyun</button>
+    <button class="tabbtn" id="tabHelpBtn">❓ Nasıl Oynanır</button>
+    <button id="endGameBtn">Oyunu Sonlandır</button>
+  </div>
+
+  <div id="playTab" class="show">
+    <div id="turnBanner">Sıra: -</div>
+
+    <div id="cardArea">
+      <div id="bigEmoji">🎭</div>
+      <div id="cardName">-</div>
+      <div id="tabooBox">
+        <div class="tabooTitle">🚫 Yasaklı Kelimeler</div>
+        <div id="tabooWords"></div>
+      </div>
+    </div>
+
+    <div id="actionButtons">
+      <button id="btnCorrect" class="actBtn correct">✅ Bildi</button>
+      <button id="btnWrong" class="actBtn wrong">❌ Hatalı</button>
+      <button id="btnGiveUp" class="actBtn giveup">🤷 Bilemedi</button>
+      <button id="btnPass" class="actBtn pass">🚫 Pas</button>
+    </div>
+
+    <div id="startTurnWrap" style="display:none;">
+      <button id="startTurnBtn" class="primary">▶️ Turu Başlat</button>
+    </div>
+  </div>
+
+  <div id="helpTab">
+    <div class="helpCard">
+      <h2>❓ Pandomim Nasıl Oynanır</h2>
+      <h3>🎯 Amaç</h3>
+      <p>Ekrandaki resmi ve ismini gören kişi, sözlü olarak (yasaklı kelimeleri kullanmadan) diğer oyunculara/takım arkadaşlarına anlatır. Süre içinde ne kadar çok kart bilinirse o kadar çok puan kazanılır.</p>
+      <h3>👤 Bireysel Mod</h3>
+      <p>Her oyuncu sırayla anlatıcı olur, kazandığı puanlar kendi hesabına yazılır.</p>
+      <h3>👥 Takım Modu</h3>
+      <p>İstediğiniz kadar takım ekleyebilirsiniz. Takımlar sırayla anlatır, kazanılan puanlar o takımın hesabına yazılır.</p>
+      <h3>⏱️ Süre ve Kartlar</h3>
+      <ul>
+        <li>Her el 60 saniyedir. Süre dolunca uyarı sesi çalar ve el otomatik biter.</li>
+        <li>Kartlar rastgele/karışık sırada gelir.</li>
+        <li>Anlatan kişi resmi ve altındaki ismi görür, karşı taraf görmez.</li>
+      </ul>
+      <h3>🔘 Düğmeler</h3>
+      <ul>
+        <li><b>✅ Bildi:</b> Karşı taraf doğru bildi, puan kazanılır, sonraki karta geçilir.</li>
+        <li><b>❌ Hatalı:</b> Anlatan kişi yasaklı kelimelerden birini kullandıysa buna basılır, sonraki karta geçilir.</li>
+        <li><b>🤷 Bilemedi:</b> Karşı taraf bilemedi, sonraki karta geçilir (sınırsız kullanılabilir).</li>
+        <li><b>🚫 Pas:</b> Anlatan kişi bu kartı anlatamayacağını düşünürse kullanır. Her elde en fazla 3 kez kullanılabilir.</li>
+      </ul>
+      <h3>👶 Çocuk / 👨‍👩‍👧 Ebeveyn Modu</h3>
+      <p>Çocuk modunda günlük toplam 30 dakika oyun süresi vardır ve bu süre diğer oyunlarla (MOLİCİTY, UNO) ortaktır. Süre dolunca oyun duraklar; ebeveyn şifresiyle devam edilebilir.</p>
+    </div>
+  </div>
+
+  <div id="log"></div>
+</div>
+
+<div id="modalOverlay">
+  <div id="modalBox"></div>
+</div>
+
+<script src="shared-time.js"></script>
+<script src="pandomim-data.js"></script>
+<script src="pandomim-script.js"></script>
+</body>
+</html>

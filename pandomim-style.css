@@ -1,0 +1,109 @@
+*{box-sizing:border-box;}
+body{
+  margin:0;font-family:'Segoe UI',Arial,sans-serif;color:#222;min-height:100vh;
+  background:linear-gradient(160deg,#6a11cb,#2575fc);
+}
+
+/* ===== KURULUM ===== */
+#setupScreen{
+  max-width:600px;margin:24px auto;background:#fff;border-radius:16px;padding:24px;
+  box-shadow:0 10px 30px rgba(0,0,0,.4);
+}
+#setupScreen h1{text-align:center;color:#6a11cb;margin-top:0;font-size:32px;}
+#setupScreen h1 span{color:#f9a825;}
+.subtitle{text-align:center;margin-top:-8px;color:#666;font-size:13px;}
+.modeBox{display:flex;flex-direction:column;gap:8px;background:#f5f5f5;border-radius:10px;padding:12px;margin:14px 0;}
+.modeBox input[type=password]{width:100%;padding:8px;border-radius:6px;border:1px solid #ccc;margin-top:4px;}
+.roundBox{background:#fff8e1;border-radius:10px;padding:12px;margin:14px 0;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.roundBox select{padding:6px 10px;border-radius:6px;border:1px solid #ccc;font-size:15px;}
+.hint{font-size:12px;color:#666;}
+#setupScreen button.primary{
+  display:block;width:100%;padding:12px;margin-top:10px;background:#6a11cb;color:#fff;
+  border:none;border-radius:10px;font-size:17px;cursor:pointer;font-weight:bold;
+}
+#participantsBox{background:#f0eefc;border-radius:10px;padding:12px;margin:14px 0;}
+.participantRow{display:flex;gap:8px;align-items:center;margin:6px 0;}
+.participantRow input[type=text]{flex:1;padding:8px;border-radius:6px;border:1px solid #ccc;}
+.participantRow button.remove{background:#999;color:#fff;border:none;border-radius:6px;padding:6px 10px;cursor:pointer;}
+#addParticipantBtn{background:#2e7d32;color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;margin-top:4px;}
+#categoryBox{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px;}
+#categoryBox label{background:#fff;padding:6px 10px;border-radius:8px;font-size:14px;display:flex;align-items:center;gap:6px;}
+
+/* ===== OYUN EKRANI ===== */
+#gameScreen{display:none;max-width:900px;margin:0 auto;padding:10px;}
+#topbar{
+  display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:#1c1c1c;border-radius:12px;
+  padding:10px 14px;margin-bottom:12px;box-shadow:0 4px 12px rgba(0,0,0,.5);
+}
+.stat{font-weight:bold;font-size:14px;background:#292929;padding:6px 10px;border-radius:8px;color:#fff;}
+#timerDisplay{font-weight:bold;font-size:26px;color:#fff;background:#c62828;padding:6px 16px;border-radius:8px;min-width:60px;text-align:center;}
+#timerDisplay.urgent{background:#ff6f00;animation:pulseUrgent .5s infinite alternate;}
+@keyframes pulseUrgent{from{transform:scale(1);}to{transform:scale(1.08);}}
+#scoreboard{display:flex;gap:6px;flex-wrap:wrap;}
+.scorePill{background:#292929;padding:5px 10px;border-radius:20px;font-size:12px;font-weight:bold;color:#fff;border:2px solid #444;}
+.scorePill.turn{border-color:#fdd835;color:#fdd835;}
+.tabbtn{padding:8px 14px;border-radius:8px;border:2px solid #444;background:#292929;color:#fff;font-weight:bold;cursor:pointer;}
+.tabbtn.active{background:#6a11cb;border-color:#6a11cb;}
+#endGameBtn{margin-left:auto;background:#444;color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:bold;}
+
+#playTab, #helpTab{display:none;}
+#playTab.show, #helpTab.show{display:block;}
+
+#turnBanner{
+  text-align:center;color:#fff;font-size:20px;font-weight:bold;margin-bottom:10px;
+  background:rgba(0,0,0,.35);padding:10px;border-radius:10px;
+}
+
+#cardArea{
+  background:#fff;border-radius:18px;padding:26px;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.35);
+  margin-bottom:14px;
+}
+#bigEmoji{font-size:110px;line-height:1;}
+#cardName{font-size:28px;font-weight:bold;color:#333;margin-top:8px;}
+#tabooBox{
+  margin-top:16px;background:#ffebee;border:2px solid #e53935;border-radius:12px;padding:10px;
+}
+.tabooTitle{font-weight:bold;color:#c62828;margin-bottom:6px;}
+#tabooWords{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
+#tabooWords span{background:#e53935;color:#fff;padding:4px 10px;border-radius:8px;font-size:14px;font-weight:bold;}
+
+#actionButtons{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.actBtn{
+  padding:16px;border-radius:12px;border:none;font-size:17px;font-weight:bold;cursor:pointer;color:#fff;
+  box-shadow:0 4px 10px rgba(0,0,0,.3);transition:transform .1s;
+}
+.actBtn:active{transform:scale(0.96);}
+.actBtn.correct{background:linear-gradient(160deg,#66bb6a,#2e7d32);}
+.actBtn.wrong{background:linear-gradient(160deg,#ef5350,#c62828);}
+.actBtn.giveup{background:linear-gradient(160deg,#bdbdbd,#616161);}
+.actBtn.pass{background:linear-gradient(160deg,#ffca28,#f9a825);color:#3e2723;}
+.actBtn:disabled{opacity:.4;cursor:not-allowed;}
+
+#startTurnWrap{text-align:center;margin-top:10px;}
+#startTurnWrap button.primary{
+  background:#2e7d32;color:#fff;border:none;padding:16px 30px;border-radius:12px;font-size:19px;
+  font-weight:bold;cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,.35);
+}
+
+#log{
+  margin-top:14px;max-height:110px;overflow-y:auto;background:#1c1c1c;border-radius:10px;padding:8px 12px;
+  font-size:12px;color:#ccc;box-shadow:0 2px 8px rgba(0,0,0,.4);
+}
+#log div{padding:2px 0;border-bottom:1px dashed #333;}
+
+.helpCard{background:#fffdf5;color:#222;border-radius:12px;padding:16px;max-width:760px;margin:0 auto;box-shadow:0 4px 12px rgba(0,0,0,.4);}
+.helpCard h2{margin-top:0;color:#6a11cb;}
+.helpCard h3{color:#c62828;margin-bottom:4px;}
+.helpCard ul{margin-top:4px;}
+
+#modalOverlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);align-items:center;justify-content:center;z-index:50;
+}
+#modalBox{background:#fff;color:#222;border-radius:14px;padding:20px;max-width:440px;width:90%;text-align:center;}
+#modalBox h3{margin-top:0;}
+#modalBox .btnrow{display:flex;gap:8px;justify-content:center;margin-top:14px;flex-wrap:wrap;}
+#modalBox button{padding:8px 16px;border-radius:8px;border:none;cursor:pointer;font-weight:bold;}
+#modalBox .scoreRow{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #eee;}
+#modalBox button.close{background:#616161;color:#fff;}
+#modalBox button.primaryBtn{background:#2e7d32;color:#fff;}
+#modalBox .statLine{display:flex;justify-content:space-between;padding:3px 0;font-size:14px;}
