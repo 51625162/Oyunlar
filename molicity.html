@@ -25,6 +25,13 @@
     </div>
   </div>
 
+  <div class="playerRow" style="flex-direction:column;align-items:flex-start;gap:8px;">
+    <b>Bilgisayar Zorluğu</b>
+    <label><input type="radio" name="difficulty" value="easy"> 🟢 Kolay</label>
+    <label><input type="radio" name="difficulty" value="medium" checked> 🟡 Orta</label>
+    <label><input type="radio" name="difficulty" value="hard"> 🔴 Zor</label>
+  </div>
+
   <div id="playerList"></div>
   <button id="addPlayerBtn">+ Oyuncu Ekle</button>
   <p class="hint">2-4 oyuncu ekleyebilirsiniz. Her oyuncu insan ya da bilgisayar (otomatik) olabilir. Çocuk modunda oyun süresi en fazla 30 dakikadır; süre dolunca oyun duraklar ve ebeveyn şifresiyle devam edilebilir. Ebeveyn modunda süre sınırı yoktur. Oyun duraklatıldığında/bittiğinde kaldığı yerden daha sonra devam edilebilir.</p>
@@ -112,6 +119,7 @@
   <div id="modalBox"></div>
 </div>
 
+<script src="shared-time.js"></script>
 <script src="molicity-script.js"></script>
 </body>
 </html>

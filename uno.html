@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UNO</title>
+<link rel="stylesheet" href="uno-style.css">
+</head>
+<body>
+
+<div id="setupScreen">
+  <h1>🃏 <span>UNO</span></h1>
+  <p class="subtitle">2-4 oyuncu — eksik koltuklar bilgisayar tarafından doldurulur</p>
+
+  <div id="resumeBox" style="display:none;text-align:center;margin-bottom:14px;">
+    <button class="primary" id="resumeBtn" style="background:#2e7d32;">▶️ Kaldığın Yerden Devam Et</button>
+  </div>
+
+  <div class="modeBox">
+    <b>Kullanıcı Tipi</b>
+    <label><input type="radio" name="userMode" value="child" checked> 👶 Çocuk — günlük 30 dakika süre sınırı</label>
+    <label><input type="radio" name="userMode" value="parent"> 👨‍👩‍👧 Ebeveyn — şifreli, sınırsız süre</label>
+    <div id="parentPassBox" style="display:none;">
+      <input type="password" id="parentPass" placeholder="Ebeveyn şifresi">
+    </div>
+  </div>
+
+  <div id="playerList"></div>
+  <button id="addPlayerBtn">+ Oyuncu Ekle</button>
+
+  <div class="roundBox">
+    <b>Kaç El Oynanacak?</b>
+    <select id="roundCount">
+      <option value="3">3 El</option>
+      <option value="5" selected>5 El</option>
+      <option value="7">7 El</option>
+      <option value="9">9 El</option>
+      <option value="11">11 El</option>
+    </select>
+  </div>
+
+  <div class="modeBox">
+    <b>Bilgisayar Zorluğu</b>
+    <label><input type="radio" name="difficulty" value="easy"> 🟢 Kolay — rastgele oynar</label>
+    <label><input type="radio" name="difficulty" value="medium" checked> 🟡 Orta — normal strateji</label>
+    <label><input type="radio" name="difficulty" value="hard"> 🔴 Zor — sizi zorlayacak şekilde oynar</label>
+  </div>
+
+  <p class="hint">Çocuk modunda günlük TOPLAM oyun süresi 30 dakikadır — bu süre MOLİCİTY, Çiftlik Oyunu T ve UNO arasında paylaşılır. Süre dolunca oyun duraklar, ebeveyn şifresiyle devam edilebilir. İlerlemeniz otomatik kaydedilir.</p>
+  <button class="primary" id="startGameBtn">OYUNA BAŞLA</button>
+</div>
+
+<div id="gameScreen">
+  <div id="topbar">
+    <div id="roundInfo" class="stat">El 1/5</div>
+    <div id="timerDisplay">30:00</div>
+    <div id="scoreboard"></div>
+    <button class="tabbtn active" id="tabTableBtn">🃏 Masa</button>
+    <button class="tabbtn" id="tabHelpBtn">❓ Nasıl Oynanır</button>
+    <button id="endGameBtn">Oyunu Sonlandır</button>
+  </div>
+
+  <div id="tableTab" class="show">
+    <div id="tableArea">
+      <div id="directionIndicator">🔁 Yön: Saat Yönü</div>
+      <div id="turnBanner">Sıra: -</div>
+      <div id="pilesRow">
+        <div id="drawPile" class="pile">
+          <div class="cardBack">UNO</div>
+          <div class="pileCount" id="drawCount">0</div>
+        </div>
+        <div id="discardPile" class="pile"></div>
+      </div>
+      <div id="passBtnWrap" style="display:none;">
+        <button id="passTurnBtn">Pas Geç (Oynanabilir kart yok)</button>
+      </div>
+    </div>
+    <h3 id="handLabel">Elindeki Kağıtlar</h3>
+    <div id="handArea"></div>
+  </div>
+
+  <div id="helpTab">
+    <div class="helpCard">
+      <h2>❓ UNO Nasıl Oynanır</h2>
+      <h3>🎯 Amaç</h3>
+      <p>Elindeki tüm kağıtları ilk bitiren o eli (round) kazanır. Diğer oyuncuların elinde kalan kağıtların puanı kazanana yazılır. Belirlenen el sayısı sonunda en yüksek puana sahip oyuncu maçı kazanır.</p>
+      <h3>🎴 Kağıt Oynama</h3>
+      <ul>
+        <li>Sırası gelen oyuncu, üstteki kağıtla aynı renk ya da aynı sayı/sembole sahip bir kağıt oynayabilir.</li>
+        <li>Joker (Wild) kağıtları her zaman oynanabilir; oynandığında renk seçilir.</li>
+        <li>Oynanabilir kağıdın yoksa desteden bir kağıt çekilir; çekilen kağıt oynanabiliyorsa hemen oynanabilir, değilse sıra geçer.</li>
+      </ul>
+      <h3>⚡ Özel Kağıtlar</h3>
+      <ul>
+        <li><b>Yasak (🚫):</b> Sıradaki oyuncu turunu kaybeder.</li>
+        <li><b>Ters Çevir (🔁):</b> Oyun yönü tersine döner (2 kişilik oyunda Yasak gibi çalışır).</li>
+        <li><b>+2:</b> Sıradaki oyuncu 2 kağıt çeker ve turunu kaybeder.</li>
+        <li><b>Joker:</b> İstediğiniz rengi seçersiniz.</li>
+        <li><b>Joker +4:</b> İstediğiniz rengi seçersiniz, sıradaki oyuncu 4 kağıt çeker ve turunu kaybeder.</li>
+      </ul>
+      <h3>🏆 Puanlama</h3>
+      <ul>
+        <li>Sayı kağıtları: üzerindeki sayı kadar puan (0-9)</li>
+        <li>Yasak / Ters Çevir / +2: 20 puan</li>
+        <li>Joker / Joker +4: 50 puan</li>
+        <li>Eli kazanan oyuncu, diğer oyuncuların elinde kalan tüm kağıtların toplam puanını alır.</li>
+      </ul>
+      <h3>👶 Çocuk / 👨‍👩‍👧 Ebeveyn Modu</h3>
+      <p>Çocuk modunda günlük toplam 30 dakika oyun süresi vardır ve bu süre MOLİCİTY, Çiftlik Oyunu T ve UNO arasında ortaktır. Süre dolunca oyun duraklar; ebeveyn şifresiyle devam edilebilir. Oyun her durumda kaldığınız yerden kaydedilir.</p>
+    </div>
+  </div>
+
+  <div id="log"></div>
+</div>
+
+<div id="modalOverlay">
+  <div id="modalBox"></div>
+</div>
+
+<script src="shared-time.js"></script>
+<script src="uno-script.js"></script>
+</body>
+</html>

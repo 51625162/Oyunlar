@@ -223,8 +223,10 @@ document.getElementById('startGameBtn').addEventListener('click', ()=>{
     const pass = document.getElementById('parentPass').value;
     if(pass !== '1247'){ alert('Ebeveyn şifresi yanlış!'); return; }
   }
+  const diffInput = document.querySelector('input[name="difficulty"]:checked');
+  const difficulty = diffInput ? diffInput.value : 'medium';
   clearState();
-  startGame(mode);
+  startGame(mode, difficulty);
 });
 
 document.getElementById('resumeBtn').addEventListener('click', ()=>{
@@ -243,7 +245,7 @@ document.getElementById('resumeBtn').addEventListener('click', ()=>{
 
 /* ============================ OYUN BAŞLATMA ============================ */
 
-function startGame(mode){
+function startGame(mode, difficulty){
   const cellsCopy = CELLS.map(c=>({...c}));
   const players = setupPlayers.map((p,i)=>({
     id:i, name:p.name, type:p.type, token:p.token, money:150000, position:0,
@@ -251,8 +253,9 @@ function startGame(mode){
   }));
 
   G = {
-    cells: cellsCopy, players, kasa:0, current:0, timeLeft: 30*60,
+    cells: cellsCopy, players, kasa:0, current:0, timeLeft: (mode==='parent') ? DAILY_LIMIT_SECONDS : getSharedRemainingSeconds(),
     mode: mode || 'child',
+    difficulty: difficulty || 'medium',
     gameOver:false, awaitingAction:false, timerHandle:null
   };
 
@@ -263,7 +266,11 @@ function startGame(mode){
   renderPlayerTabs();
   updateTopbar();
   renderFinance();
-  startTimer();
+  if(G.mode==='child' && G.timeLeft<=0){
+    pauseGame('⏰ Bugünkü 30 dakikalık toplam oyun süreniz doldu! (Tüm oyunlar dahil)', true);
+  } else {
+    startTimer();
+  }
   log('🎮 Oyun başladı! <b>'+players.map(p=>p.name+' ('+(p.type==='human'?'İnsan':'Bilgisayar')+')').join(', ')+'</b>');
   beginTurn();
 }
@@ -276,9 +283,10 @@ function startTimer(){
   G.timerHandle = setInterval(()=>{
     if(G.gameOver) return;
     G.timeLeft--;
+    addSharedUsedSeconds(1);
     updateTimerDisplay();
     if(G.timeLeft<=0){
-      pauseGame('⏰ 30 dakikalık çocuk süresi doldu!', true);
+      pauseGame('⏰ Bugünkü 30 dakikalık toplam oyun süreniz doldu! (Tüm oyunlar dahil)', true);
     }
   },1000);
 }
@@ -362,6 +370,13 @@ function pauseGame(reason, requirePassword){
 
 function resumeGame(){
   if(!G) return;
+  if(G.mode==='child'){
+    G.timeLeft = getSharedRemainingSeconds();
+    if(G.timeLeft<=0){
+      pauseGame('⏰ Bugünkü 30 dakikalık toplam oyun süreniz doldu! (Tüm oyunlar dahil)', true);
+      return;
+    }
+  }
   G.gameOver = false;
   document.getElementById('rollBtn').disabled = false;
   if(G.mode==='child' && !G.timerHandle){ startTimer(); }
@@ -823,7 +838,8 @@ function offerPurchase(p, cb){
   const price = cell.price;
 
   if(p.type==='cpu'){
-    const shouldBuy = p.money >= price * 1.4;
+    const buyThreshold = {easy:2.5, medium:1.4, hard:1.15}[G.difficulty] || 1.4;
+    const shouldBuy = p.money >= price * buyThreshold;
     if(shouldBuy){
       buyProperty(p, cb);
     } else {
@@ -1061,7 +1077,9 @@ function cpuHandleJail(p, afterCb){
     afterCb();
     return;
   }
-  if(p.jailTurns>=1 && p.money>15000){
+  const jailWaitTurns = {easy:2, medium:1, hard:0}[G.difficulty] ?? 1;
+  const jailMoneyBar = {easy:25000, medium:15000, hard:9000}[G.difficulty] ?? 15000;
+  if(p.jailTurns>=jailWaitTurns && p.money>jailMoneyBar){
     p.money -= 5000;
     p.inJail=false; p.jailTurns=0;
     log(`🤖 <b>${p.name}</b> ceza ödeyip çıktı.`);
@@ -1183,6 +1201,7 @@ function cpuTakeTurn(p){
 }
 
 function cpuMaybeBuild(p){
+  const buildThreshold = {easy:6, medium:3, hard:1.6}[G.difficulty] || 3;
   const groups = {};
   p.properties.forEach(i=>{
     const c = G.cells[i];
@@ -1195,7 +1214,7 @@ function cpuMaybeBuild(p){
     if(ownsFullGroup(p, g)){
       const idxs = groups[g].sort((a,b)=>G.cells[a].houses-G.cells[b].houses);
       const target = G.cells[idxs[0]];
-      if(target.houses<5 && !target.mortgaged && p.money > target.houseCost*3){
+      if(target.houses<5 && !target.mortgaged && p.money > target.houseCost*buildThreshold){
         p.money -= target.houseCost;
         target.houses++;
         if(target.houses===5){ playPlazaSound(); } else { playBuyHouseSound(); }
