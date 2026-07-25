@@ -325,6 +325,11 @@ document.getElementById('tabBoardBtn').addEventListener('click', ()=>switchTab('
 document.getElementById('tabFinanceBtn').addEventListener('click', ()=>switchTab('finance'));
 document.getElementById('tabHelpBtn').addEventListener('click', ()=>switchTab('help'));
 
+document.getElementById('homeBtn').addEventListener('click', ()=>{
+  if(G) saveState();
+  location.href = 'index.html';
+});
+
 document.getElementById('endGameBtn').addEventListener('click', ()=>{
   if(confirm('Oyunu duraklatmak istediğinize emin misiniz? Daha sonra kaldığınız yerden devam edebilirsiniz.')){
     pauseGame('Oyun kullanıcı tarafından duraklatıldı.', false);

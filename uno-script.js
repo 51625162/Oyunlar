@@ -265,6 +265,11 @@ function switchTab(name){
 document.getElementById('tabTableBtn').addEventListener('click', ()=>switchTab('table'));
 document.getElementById('tabHelpBtn').addEventListener('click', ()=>switchTab('help'));
 
+document.getElementById('homeBtn').addEventListener('click', ()=>{
+  if(G) saveState();
+  location.href = 'index.html';
+});
+
 document.getElementById('endGameBtn').addEventListener('click', ()=>{
   if(confirm('UNO oyununu duraklatmak istediğine emin misin? Daha sonra kaldığın yerden devam edebilirsin.')){
     pauseGame('Oyun kullanıcı tarafından duraklatıldı.', false);

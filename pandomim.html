@@ -46,14 +46,23 @@
     <b>Kaç Tur? (Her katılımcı sırayla anlatır)</b>
     <select id="roundCount">
       <option value="1">1 Tur</option>
-      <option value="2">2 Tur</option>
       <option value="3" selected>3 Tur</option>
-      <option value="4">4 Tur</option>
       <option value="5">5 Tur</option>
+      <option value="7">7 Tur</option>
+      <option value="9">9 Tur</option>
     </select>
   </div>
 
-  <p class="hint">Her el 60 saniye sürer. Her elde en fazla 3 kez "Pas" hakkı vardır. Anlatan kişi resmi görür; yasaklı kelimeleri söylerse "Hatalı" düğmesine basılır. Süre dolunca otomatik uyarı sesi çalar. Çocuk modunda günlük toplam süre 30 dakikadır ve MOLİCİTY/UNO ile ortaktır.</p>
+  <div class="roundBox">
+    <b>Her El Kaç Dakika?</b>
+    <select id="turnDuration">
+      <option value="60" selected>1 Dakika</option>
+      <option value="120">2 Dakika</option>
+      <option value="180">3 Dakika</option>
+    </select>
+  </div>
+
+  <p class="hint">Her elde en fazla 3 kez "Pas" hakkı vardır. Anlatan kişi resmi görür; yasaklı kelimeleri söylerse "Hatalı" düğmesine basılır. Süre dolunca otomatik uyarı sesi çalar. Çocuk modunda günlük toplam süre 30 dakikadır ve MOLİCİTY/UNO ile ortaktır.</p>
   <button class="primary" id="startGameBtn">OYUNA BAŞLA</button>
 </div>
 
@@ -66,6 +75,7 @@
     <button class="tabbtn active" id="tabPlayBtn">🎭 Oyun</button>
     <button class="tabbtn" id="tabHelpBtn">❓ Nasıl Oynanır</button>
     <button id="endGameBtn">Oyunu Sonlandır</button>
+    <button id="homeBtn">🏠 Oyun Merkezi</button>
   </div>
 
   <div id="playTab" class="show">
@@ -103,7 +113,7 @@
       <p>İstediğiniz kadar takım ekleyebilirsiniz. Takımlar sırayla anlatır, kazanılan puanlar o takımın hesabına yazılır.</p>
       <h3>⏱️ Süre ve Kartlar</h3>
       <ul>
-        <li>Her el 60 saniyedir. Süre dolunca uyarı sesi çalar ve el otomatik biter.</li>
+        <li>Her el, kurulumda seçilen süre kadardır (1, 2 veya 3 dakika). Süre dolunca uyarı sesi çalar ve el otomatik biter.</li>
         <li>Kartlar rastgele/karışık sırada gelir.</li>
         <li>Anlatan kişi resmi ve altındaki ismi görür, karşı taraf görmez.</li>
       </ul>

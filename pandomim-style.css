@@ -45,6 +45,7 @@ body{
 .tabbtn{padding:8px 14px;border-radius:8px;border:2px solid #444;background:#292929;color:#fff;font-weight:bold;cursor:pointer;}
 .tabbtn.active{background:#6a11cb;border-color:#6a11cb;}
 #endGameBtn{margin-left:auto;background:#444;color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:bold;}
+#homeBtn{background:#2e7d32;color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:bold;}
 
 #playTab, #helpTab{display:none;}
 #playTab.show, #helpTab.show{display:block;}

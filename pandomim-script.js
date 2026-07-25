@@ -150,8 +150,9 @@ document.getElementById('startGameBtn').addEventListener('click', ()=>{
   if(selectedCats.length===0){ alert('En az bir kategori seçmelisiniz.'); return; }
   const style = currentGameStyle();
   const roundsTotal = parseInt(document.getElementById('roundCount').value,10) || 3;
+  const turnDuration = parseInt(document.getElementById('turnDuration').value,10) || 60;
   clearState();
-  startMatch(mode, style, selectedCats, roundsTotal);
+  startMatch(mode, style, selectedCats, roundsTotal, turnDuration);
 });
 
 document.getElementById('resumeBtn').addEventListener('click', ()=>{
@@ -183,18 +184,19 @@ function buildPool(selectedCats){
   return pool;
 }
 
-function startMatch(mode, style, selectedCats, roundsTotal){
+function startMatch(mode, style, selectedCats, roundsTotal, turnDuration){
   const pool = buildPool(selectedCats);
   G = {
     mode: mode || 'child',
     gameStyle: style,
     participants: setupParticipants.map((p,i)=>({id:i, name:p.name, score:0})),
     roundsTotal,
+    turnDuration: turnDuration || 60,
     turnGlobalIndex: 0,
     pool,
     deck: shuffle(pool),
     deckPos: 0,
-    turnTimeLeft: 60,
+    turnTimeLeft: turnDuration || 60,
     passesLeft: 3,
     turnActive: false,
     currentCard: null,
@@ -205,7 +207,7 @@ function startMatch(mode, style, selectedCats, roundsTotal){
   };
   document.getElementById('setupScreen').style.display='none';
   document.getElementById('gameScreen').style.display='block';
-  log(`🎭 Pandomim başladı! <b>${style==='team'?'Takım':'Bireysel'} modu</b> — ${G.participants.map(p=>p.name).join(', ')} — ${roundsTotal} tur.`);
+  log(`🎭 Pandomim başladı! <b>${style==='team'?'Takım':'Bireysel'} modu</b> — ${G.participants.map(p=>p.name).join(', ')} — ${roundsTotal} tur, el başına ${G.turnDuration/60} dk.`);
   if(G.mode==='child' && G.timeLeft<=0){
     pauseGame('⏰ Bugünkü 30 dakikalık toplam oyun süreniz doldu! (Tüm oyunlar dahil)', true);
     return;
@@ -230,7 +232,7 @@ function beginTurn(){
   document.getElementById('bigEmoji').textContent = '🎭';
   document.getElementById('cardName').textContent = 'Hazır mısın?';
   document.getElementById('tabooWords').innerHTML = '';
-  document.getElementById('timerDisplay').textContent = '60';
+  document.getElementById('timerDisplay').textContent = G.turnDuration>60 ? (Math.floor(G.turnDuration/60)+':'+String(G.turnDuration%60).padStart(2,'0')) : String(G.turnDuration);
   document.getElementById('timerDisplay').classList.remove('urgent');
   document.getElementById('passInfo').textContent = `🚫 Pas: 3/3`;
   renderScoreboard();
@@ -242,7 +244,7 @@ document.getElementById('startTurnBtn').addEventListener('click', ()=>{
   runCountdown(()=>{
     document.getElementById('actionButtons').style.display = 'grid';
     G.turnActive = true;
-    G.turnTimeLeft = 60;
+    G.turnTimeLeft = G.turnDuration;
     G.passesLeft = 3;
     G.turnStats = {correct:0, wrong:0, giveup:0, pass:0};
     drawNextCard();
@@ -312,7 +314,12 @@ function startTurnTimer(){
 }
 function updateTurnTimerDisplay(){
   const el = document.getElementById('timerDisplay');
-  el.textContent = G.turnTimeLeft;
+  if(G.turnTimeLeft>60){
+    const m = Math.floor(G.turnTimeLeft/60), s = G.turnTimeLeft%60;
+    el.textContent = m+':'+String(s).padStart(2,'0');
+  } else {
+    el.textContent = G.turnTimeLeft;
+  }
   if(G.turnTimeLeft<=10) el.classList.add('urgent'); else el.classList.remove('urgent');
 }
 
@@ -396,6 +403,11 @@ function switchTab(name){
 }
 document.getElementById('tabPlayBtn').addEventListener('click', ()=>switchTab('play'));
 document.getElementById('tabHelpBtn').addEventListener('click', ()=>switchTab('help'));
+
+document.getElementById('homeBtn').addEventListener('click', ()=>{
+  if(G) saveState();
+  location.href = 'index.html';
+});
 
 document.getElementById('endGameBtn').addEventListener('click', ()=>{
   if(confirm('Pandomim oyununu duraklatmak istediğine emin misin? Bu turun puanı kaydedilmeyecek, daha sonra kaldığın turdan devam edebilirsin.')){
