@@ -1,5 +1,6 @@
 *{box-sizing:border-box;}
 body{
+  touch-action:manipulation;
   margin:0;font-family:'Segoe UI',Arial,sans-serif;color:#222;min-height:100vh;
   background:linear-gradient(160deg,#6a11cb,#2575fc);
 }
