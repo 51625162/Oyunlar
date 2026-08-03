@@ -59,55 +59,60 @@
   <div id="topbar">
     <div id="roundInfo" class="stat">Tur 1/3</div>
     <div id="timerDisplay">Sınırsız</div>
-    <div id="scoreboard"></div>
     <button class="tabbtn active" id="tabPlayBtn">🎡 Oyun</button>
     <button class="tabbtn" id="tabHelpBtn">❓ Nasıl Oynanır</button>
     <button id="endGameBtn">Oyunu Sonlandır</button>
     <button id="homeBtn">🏠 Oyun Merkezi</button>
   </div>
 
-  <div id="playTab" class="show">
-    <div id="turnBanner">Sıra: -</div>
-    <div id="categoryLabel">Kategori: -</div>
-    <div id="phraseDisplay"></div>
-    <div id="roundScoreInfo">Bu turdaki puanın: 0</div>
+  <div id="mainLayout">
+    <div id="scoreboard"></div>
 
-    <div id="wheelArea">
-      <div id="wheelWrap">
-        <div id="wheelPointer">▼</div>
-        <div id="wheel"></div>
+    <div id="mainContent">
+      <div id="playTab" class="show">
+        <div id="turnBanner">Sıra: -</div>
+        <div id="categoryLabel">Kategori: -</div>
+        <div id="phraseDisplay"></div>
+        <div id="roundScoreInfo">Bu turdaki puanın: 0</div>
+
+        <div id="wheelArea">
+          <div id="wheelWrap">
+            <div id="wheelPointer">▼</div>
+            <div id="wheel"></div>
+          </div>
+          <button id="spinBtn" class="primary">🎡 Çarkı Çevir</button>
+          <div id="wheelResult"></div>
+        </div>
+
+        <div id="letterBoard"></div>
+
+        <div id="guessRow">
+          <button id="guessPhraseBtn">💬 Kelimeyi Tahmin Et</button>
+        </div>
+
+        <div id="log"></div>
       </div>
-      <button id="spinBtn" class="primary">🎡 Çarkı Çevir</button>
-      <div id="wheelResult"></div>
-    </div>
 
-    <div id="letterBoard"></div>
-
-    <div id="guessRow">
-      <button id="guessPhraseBtn">💬 Kelimeyi Tahmin Et</button>
-    </div>
-
-    <div id="log"></div>
-  </div>
-
-  <div id="helpTab">
-    <div class="helpCard">
-      <h2>❓ Çarkıfelek Nasıl Oynanır</h2>
-      <h3>🎯 Amaç</h3>
-      <p>Gizli kelime/ifadeyi harf harf ortaya çıkararak veya doğrudan tahmin ederek bulmaya çalış. Bulan oyuncu o turun puanını kazanır.</p>
-      <h3>🎡 Çark</h3>
-      <ul>
-        <li><b>Sayı gelirse:</b> Bir harf seçersin. Harf ifadede varsa, çarkın gösterdiği puan × harfin geçtiği sayı kadar puan kazanır ve tekrar oynarsın.</li>
-        <li><b>PAS:</b> Sıra bir sonraki oyuncuya geçer.</li>
-        <li><b>İFLAS:</b> Bu turda biriktirdiğin tüm puan silinir, sıra geçer.</li>
-        <li><b>EKSTRA ÇEVİR:</b> Tekrar çark çevirirsin.</li>
-      </ul>
-      <h3>💬 Kelimeyi Tahmin Etmek</h3>
-      <p>İstediğin zaman "Kelimeyi Tahmin Et" düğmesine basıp tüm ifadeyi tahmin edebilirsin. Doğruysa turu kazanır ve puanını hesabına eklersin. Yanlışsa sıra geçer.</p>
-      <h3>🏆 Puanlama</h3>
-      <p>Turu kazanan oyuncu, o turda biriktirdiği puanı toplam skoruna ekler. En çok tur/puan alan oyuncu maçı kazanır.</p>
-      <h3>👶 Çocuk / 👨‍👩‍👧 Ebeveyn Modu</h3>
-      <p>Çocuk modunda günlük toplam 30 dakika oyun süresi vardır ve diğer oyunlarla ortaktır.</p>
+      <div id="helpTab">
+        <div class="helpCard">
+          <h2>❓ Çarkıfelek Nasıl Oynanır</h2>
+          <h3>🎯 Amaç</h3>
+          <p>Gizli kelime/ifadeyi harf harf ortaya çıkararak veya doğrudan tahmin ederek bulmaya çalış. Bulan oyuncu o turun puanını kazanır.</p>
+          <h3>🎡 Çark</h3>
+          <ul>
+            <li><b>Sayı gelirse:</b> Bir harf seçersin. Harf ifadede varsa, çarkın gösterdiği puan × harfin geçtiği sayı kadar puan kazanır ve tekrar oynarsın.</li>
+            <li><b>PAS:</b> Sıra bir sonraki oyuncuya geçer.</li>
+            <li><b>İFLAS:</b> Bu turda biriktirdiğin tüm puan silinir, sıra geçer.</li>
+            <li><b>EKSTRA ÇEVİR:</b> Tekrar çark çevirirsin.</li>
+          </ul>
+          <h3>💬 Kelimeyi Tahmin Etmek</h3>
+          <p>İstediğin zaman "Kelimeyi Tahmin Et" düğmesine basıp tüm ifadeyi tahmin edebilirsin. Doğruysa turu kazanır ve puanını hesabına eklersin. Yanlışsa sıra geçer.</p>
+          <h3>🏆 Puanlama</h3>
+          <p>Turu kazanan oyuncu, o turda biriktirdiği puanı toplam skoruna ekler. En çok tur/puan alan oyuncu maçı kazanır.</p>
+          <h3>👶 Çocuk / 👨‍👩‍👧 Ebeveyn Modu</h3>
+          <p>Çocuk modunda günlük toplam 30 dakika oyun süresi vardır ve diğer oyunlarla ortaktır.</p>
+        </div>
+      </div>
     </div>
   </div>
 </div>

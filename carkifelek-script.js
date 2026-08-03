@@ -648,7 +648,9 @@ function renderScoreboard(){
   G.players.forEach((p,i)=>{
     const pill = document.createElement('div');
     pill.className = 'scorePill' + (i===G.currentPlayer && !G.gameOver ? ' turn' : '');
-    pill.textContent = `${p.name}: ${p.score}${p.roundBank>0?' (+'+p.roundBank+')':''}`;
+    pill.innerHTML = `<span class="pName">${p.name}${p.type==='cpu'?' 🤖':''}</span>
+      <span class="pScore">${p.score}</span>
+      ${p.roundBank>0 ? '<span class="pBank">Bu tur: +'+p.roundBank+'</span>' : ''}`;
     sb.appendChild(pill);
   });
 }
