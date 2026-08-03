@@ -309,7 +309,20 @@ function updateTopbar(){
   const cp = G.players[G.current];
   document.getElementById('turnInfo').textContent = cp ? ('Sırada: '+cp.name+(cp.type==='cpu'?' 🤖':' 👤')) : '-';
   document.getElementById('curPlayerName').textContent = cp ? cp.name : '-';
+  renderBudgetBar();
   saveState();
+}
+
+function renderBudgetBar(){
+  const bar = document.getElementById('budgetBar');
+  if(!bar) return;
+  bar.innerHTML = '';
+  G.players.forEach((p,i)=>{
+    const pill = document.createElement('div');
+    pill.className = 'budgetPill' + (i===G.current && !G.gameOver ? ' turn' : '') + (p.bankrupt ? ' bankrupt' : '');
+    pill.innerHTML = `<span class="bpName">${TOKENS.find(t=>t.id===p.token).icon} ${p.name}</span><span class="bpMoney">${fmt(p.money)}</span>`;
+    bar.appendChild(pill);
+  });
 }
 
 /* ============================ TAB YÖNETİMİ ============================ */

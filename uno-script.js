@@ -490,21 +490,35 @@ document.getElementById('drawPile').addEventListener('click', drawCardHuman);
 
 function endRound(winnerIdx){
   const winner = G.players[winnerIdx];
-  let pts = 0;
+  const penalties = {};
   G.players.forEach(p=>{
-    if(p.id!==winner.id){ p.hand.forEach(c=>{ pts += cardPoints(c); }); }
+    if(p.id!==winner.id){
+      const penalty = p.hand.length;
+      p.score += penalty;
+      penalties[p.id] = penalty;
+    }
   });
-  winner.score += pts;
   G.roundOver = true;
   playRoundWinSound();
-  log(`🏆 <b>${winner.name}</b> ${G.roundNumber}. eli kazandı! +${pts} puan (Toplam: ${winner.score})`);
+  log(`🏆 <b>${winner.name}</b> ${G.roundNumber}. eli kazandı! (Kartı bitirdi, ceza almadı)`);
+  G.players.forEach(p=>{
+    if(p.id!==winner.id){
+      log(`&nbsp;&nbsp;${p.name}: elinde ${penalties[p.id]} kart kaldı → +${penalties[p.id]} ceza (Toplam: ${p.score})`);
+    }
+  });
   saveState();
-  showRoundEndModal(winner, pts);
+  showRoundEndModal(winner, penalties);
 }
 
-function showRoundEndModal(winner, pts){
-  const ranking = G.players.slice().sort((a,b)=>b.score-a.score);
-  let html = `<h3>🏆 El Bitti!</h3><p><b>${winner.name}</b> bu eli kazandı ve <b>+${pts}</b> puan aldı.</p><div>`;
+function showRoundEndModal(winner, penalties){
+  const ranking = G.players.slice().sort((a,b)=>a.score-b.score);
+  let html = `<h3>🏆 El Bitti!</h3><p><b>${winner.name}</b> kartlarını bitirdi, bu elde ceza almadı!</p>
+    <p style="font-size:13px;color:#666;">Diğer oyuncular elde kalan kart SAYISI kadar ceza puanı aldı (en az ceza en iyisidir).</p><div>`;
+  const sortedByPenalty = G.players.slice().filter(p=>p.id!==winner.id).sort((a,b)=>(penalties[b.id]||0)-(penalties[a.id]||0));
+  sortedByPenalty.forEach(p=>{
+    html += `<div class="scoreRow"><span>${p.name}</span><b>+${penalties[p.id]} kart</b></div>`;
+  });
+  html += `</div><h4 style="margin-bottom:4px;">Genel Durum (düşük puan iyidir)</h4><div>`;
   ranking.forEach((p,i)=>{
     html += `<div class="scoreRow"><span>${i===0?'👑 ':''}${p.name}</span><b>${p.score}</b></div>`;
   });
@@ -531,17 +545,22 @@ function matchEnd(){
   G.gameOver = true;
   clearInterval(G.timerHandle);
   G.timerHandle = null;
-  const ranking = G.players.slice().sort((a,b)=>b.score-a.score);
+  const ranking = G.players.slice().sort((a,b)=>a.score-b.score);
+  const winner = ranking[0];
+  const loser = ranking[ranking.length-1];
   playWinSound();
   setTimeout(playLoseSound, 500);
-  let html = `<h3>🏁 Maç Bitti!</h3><ol style="text-align:left;">`;
+  let html = `<h3>🏁 Maç Bitti!</h3><p style="font-size:13px;color:#666;">En az ceza puanı alan kazanır, en çok ceza alan kaybeder.</p><ol style="text-align:left;">`;
   ranking.forEach((p,i)=>{
-    html += `<li><b>${p.name}</b> — ${p.score} puan ${i===0?'👑 Şampiyon!':''}</li>`;
+    let tag = '';
+    if(i===0) tag = ' 👑 Kazandı!';
+    else if(i===ranking.length-1 && ranking.length>1) tag = ' 💀 Kaybetti!';
+    html += `<li><b>${p.name}</b> — ${p.score} ceza puanı${tag}</li>`;
   });
   html += `</ol><div class="btnrow"><button class="primaryBtn" id="newMatchBtn">🆕 Yeni Maç</button></div>`;
   showModal(html);
   document.getElementById('newMatchBtn').onclick = ()=>{ clearState(); location.reload(); };
-  log(`🏁 MAÇ SONA ERDİ! Şampiyon: <b>${ranking[0].name}</b> (${ranking[0].score} puan)`);
+  log(`🏁 MAÇ SONA ERDİ! Kazanan: <b>${winner.name}</b> (${winner.score} ceza) — Kaybeden: <b>${loser.name}</b> (${loser.score} ceza)`);
   saveState();
 }
 
@@ -692,8 +711,8 @@ function resumeGame(){
 }
 
 function showPauseModal(reason, requirePassword){
-  const ranking = G.players.slice().sort((a,b)=>b.score-a.score);
-  let html = `<h3>⏸️ UNO Duraklatıldı</h3><p>${reason}</p><div>`;
+  const ranking = G.players.slice().sort((a,b)=>a.score-b.score);
+  let html = `<h3>⏸️ UNO Duraklatıldı</h3><p>${reason}</p><p style="font-size:12px;color:#666;">(Düşük ceza puanı iyidir)</p><div>`;
   ranking.forEach((p,i)=>{
     html += `<div class="scoreRow"><span>${i===0?'👑 ':''}${p.name}</span><b>${p.score}</b></div>`;
   });
