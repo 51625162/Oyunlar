@@ -652,111 +652,145 @@ function renderMaze(){
   else renderTopView(canvas, ctx);
 }
 
+/* Yıldızlı uzay arka planı çizer */
+function drawSpaceBackground(ctx, w, h, seed){
+  const g = ctx.createLinearGradient(0,0,w,h);
+  g.addColorStop(0, '#241b4a');
+  g.addColorStop(0.5, '#1a1240');
+  g.addColorStop(1, '#0d0a24');
+  ctx.fillStyle = g;
+  ctx.fillRect(0,0,w,h);
+  // gezegenler
+  const p1 = ctx.createRadialGradient(w*0.78,h*0.22,2, w*0.78,h*0.22,w*0.09);
+  p1.addColorStop(0,'#ffd9a0'); p1.addColorStop(1,'#e05a2b');
+  ctx.fillStyle = p1;
+  ctx.beginPath(); ctx.arc(w*0.78,h*0.22,w*0.075,0,Math.PI*2); ctx.fill();
+  const p2 = ctx.createRadialGradient(w*0.2,h*0.82,2, w*0.2,h*0.82,w*0.1);
+  p2.addColorStop(0,'#7ec8ff'); p2.addColorStop(1,'#1e4d8f');
+  ctx.fillStyle = p2;
+  ctx.beginPath(); ctx.arc(w*0.2,h*0.82,w*0.085,0,Math.PI*2); ctx.fill();
+  // yıldızlar (sabit görünmesi için basit bir sözde-rasgele dağılım)
+  ctx.fillStyle = 'rgba(255,255,255,0.85)';
+  let sx = 12.9898*(seed||1);
+  for(let i=0;i<70;i++){
+    const fx = Math.abs(Math.sin(sx)*43758.5453)%1;
+    const fy = Math.abs(Math.cos(sx*1.7)*24634.634)%1;
+    sx += 3.71;
+    const r = (i%7===0) ? 1.6 : 0.8;
+    ctx.beginPath(); ctx.arc(fx*w, fy*h, r, 0, Math.PI*2); ctx.fill();
+  }
+}
+
+/* Işıklı neon "tüp" duvar bloğu çizer */
+function drawTubeBlock(ctx, x0, y0, w, h){
+  ctx.save();
+  ctx.shadowColor = 'rgba(120,190,255,0.6)';
+  ctx.shadowBlur = Math.max(2, Math.min(w,h)*0.35);
+  const isHoriz = w>=h;
+  const g = ctx.createLinearGradient(x0, y0, isHoriz? x0 : x0+w, isHoriz? y0+h : y0);
+  g.addColorStop(0, '#e8f6ff');
+  g.addColorStop(0.35, '#8fc6e8');
+  g.addColorStop(0.65, '#3f7fae');
+  g.addColorStop(1, '#1c4160');
+  ctx.fillStyle = g;
+  const rad = Math.min(w,h)/2;
+  roundRectPath(ctx, x0, y0, w, h, rad);
+  ctx.fill();
+  ctx.restore();
+  ctx.strokeStyle = '#ffb74d';
+  ctx.lineWidth = Math.max(1, Math.min(w,h)*0.08);
+  roundRectPath(ctx, x0+ctx.lineWidth/2, y0+ctx.lineWidth/2, w-ctx.lineWidth, h-ctx.lineWidth, Math.max(0,rad-ctx.lineWidth/2));
+  ctx.stroke();
+}
+function roundRectPath(ctx, x, y, w, h, r){
+  r = Math.max(0, Math.min(r, Math.min(w,h)/2));
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.arcTo(x+w, y, x+w, y+h, r);
+  ctx.arcTo(x+w, y+h, x, y+h, r);
+  ctx.arcTo(x, y+h, x, y, r);
+  ctx.arcTo(x, y, x+w, y, r);
+  ctx.closePath();
+}
+
+function drawHedgeCellWalls(ctx, cellData, x, y, cell, thicknessRatio){
+  const t = cell*(thicknessRatio||0.22);
+  if(cellData.top)    drawTubeBlock(ctx, x-t/2, y-t/2, cell+t, t);
+  if(cellData.bottom) drawTubeBlock(ctx, x-t/2, y+cell-t/2, cell+t, t);
+  if(cellData.left)   drawTubeBlock(ctx, x-t/2, y-t/2, t, cell+t);
+  if(cellData.right)  drawTubeBlock(ctx, x+cell-t/2, y-t/2, t, cell+t);
+}
+
+function drawEmojiIcon(ctx, emoji, x, y, cell, scale){
+  ctx.font = Math.floor(cell*(scale||0.62))+'px serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(emoji, x+cell/2, y+cell/2+cell*0.03);
+}
+
 function renderTopView(canvas, ctx){
   const {dim, grid, playerPos, exitPos, obstacles, enemies} = G.levelData;
-  const size = 320;
+  const size = 340;
   canvas.width = size; canvas.height = size;
   const cell = size/dim;
-  ctx.fillStyle = '#fff';
-  ctx.fillRect(0,0,size,size);
-  drawWalls(ctx, grid, dim, cell, 0, 0);
-  drawMarker(ctx, 0, 0, cell, '#43a047', '🚩'.replace('🚩',''), true);
-  ctx.fillStyle='#43a047'; ctx.fillRect(2,2,cell-4,cell-4);
-  ctx.fillStyle='#e53935'; ctx.fillRect(exitPos.c*cell+2, exitPos.r*cell+2, cell-4, cell-4);
-  obstacles.forEach(o=>{
-    ctx.fillStyle = '#ff9800';
-    ctx.beginPath();
-    ctx.arc(o.c*cell+cell/2, o.r*cell+cell/2, cell*0.28, 0, Math.PI*2);
-    ctx.fill();
-  });
-  enemies.forEach(e=>{
-    ctx.fillStyle = '#8e24aa';
-    ctx.beginPath();
-    ctx.arc(e.c*cell+cell/2, e.r*cell+cell/2, cell*0.32, 0, Math.PI*2);
-    ctx.fill();
-  });
-  ctx.fillStyle = '#1565c0';
-  ctx.beginPath();
-  ctx.arc(playerPos.c*cell+cell/2, playerPos.r*cell+cell/2, cell*0.32, 0, Math.PI*2);
-  ctx.fill();
+
+  drawSpaceBackground(ctx, size, size, G.level);
+  for(let r=0;r<dim;r++){
+    for(let c=0;c<dim;c++){
+      drawHedgeCellWalls(ctx, grid[r][c], c*cell, r*cell, cell, 0.24);
+    }
+  }
+  // başlangıç / çıkış
+  drawEmojiIcon(ctx, '🚀', 0, 0, cell, 0.55);
+  drawEmojiIcon(ctx, '🛸', exitPos.c*cell, exitPos.r*cell, cell, 0.65);
+  // engeller
+  obstacles.forEach(o=>{ drawEmojiIcon(ctx, '⚡', o.c*cell, o.r*cell, cell, 0.6); });
+  // düşmanlar
+  enemies.forEach(e=>{ drawEmojiIcon(ctx, '👾', e.c*cell, e.r*cell, cell, 0.65); });
+  // oyuncu
+  drawEmojiIcon(ctx, '🧑‍🚀', playerPos.c*cell, playerPos.r*cell, cell, 0.65);
 }
 
 function renderInsideView(canvas, ctx){
   const {dim, grid, playerPos, exitPos, obstacles, enemies} = G.levelData;
   const radius = 2;
-  const cell = 60;
+  const cell = 62;
   const size = cell*(radius*2+1);
   canvas.width = size; canvas.height = size;
-  ctx.fillStyle = '#111';
-  ctx.fillRect(0,0,size,size);
 
-  for(let dr=-radius; dr<=radius; dr++){
-    for(let dc=-radius; dc<=radius; dc++){
-      const r = playerPos.r+dr, c = playerPos.c+dc;
-      const x = (dc+radius)*cell, y = (dr+radius)*cell;
-      if(r<0||r>=dim||c<0||c>=dim){
-        ctx.fillStyle = '#000';
-        ctx.fillRect(x,y,cell,cell);
-        continue;
-      }
-      ctx.fillStyle = '#fff';
-      ctx.fillRect(x,y,cell,cell);
-      if(r===exitPos.r && c===exitPos.c){ ctx.fillStyle='#e53935'; ctx.fillRect(x+3,y+3,cell-6,cell-6); }
-      if(r===0 && c===0){ ctx.fillStyle='#43a047'; ctx.fillRect(x+3,y+3,cell-6,cell-6); }
-    }
-  }
-  // duvarlar
+  drawSpaceBackground(ctx, size, size, G.level*7+playerPos.r*3+playerPos.c);
+
   for(let dr=-radius; dr<=radius; dr++){
     for(let dc=-radius; dc<=radius; dc++){
       const r = playerPos.r+dr, c = playerPos.c+dc;
       if(r<0||r>=dim||c<0||c>=dim) continue;
       const x = (dc+radius)*cell, y = (dr+radius)*cell;
-      drawCellWalls(ctx, grid[r][c], x, y, cell);
+      drawHedgeCellWalls(ctx, grid[r][c], x, y, cell, 0.3);
+      if(r===exitPos.r && c===exitPos.c) drawEmojiIcon(ctx, '🛸', x, y, cell, 0.6);
+      if(r===0 && c===0) drawEmojiIcon(ctx, '🚀', x, y, cell, 0.5);
     }
   }
-  // engel/düşman (yarıçap içindeyse)
   obstacles.forEach(o=>{
     const dr=o.r-playerPos.r, dc=o.c-playerPos.c;
     if(Math.abs(dr)<=radius && Math.abs(dc)<=radius){
-      const x=(dc+radius)*cell, y=(dr+radius)*cell;
-      ctx.fillStyle='#ff9800';
-      ctx.beginPath(); ctx.arc(x+cell/2,y+cell/2,cell*0.22,0,Math.PI*2); ctx.fill();
+      drawEmojiIcon(ctx, '⚡', (dc+radius)*cell, (dr+radius)*cell, cell, 0.55);
     }
   });
   enemies.forEach(e=>{
     const dr=e.r-playerPos.r, dc=e.c-playerPos.c;
     if(Math.abs(dr)<=radius && Math.abs(dc)<=radius){
-      const x=(dc+radius)*cell, y=(dr+radius)*cell;
-      ctx.fillStyle='#8e24aa';
-      ctx.beginPath(); ctx.arc(x+cell/2,y+cell/2,cell*0.26,0,Math.PI*2); ctx.fill();
+      drawEmojiIcon(ctx, '👾', (dc+radius)*cell, (dr+radius)*cell, cell, 0.6);
     }
   });
+  // vinyet (kenarlarda hafif karartma — kapalı/içeride hissi)
+  const vg = ctx.createRadialGradient(size/2,size/2,size*0.28, size/2,size/2,size*0.62);
+  vg.addColorStop(0,'rgba(0,0,0,0)');
+  vg.addColorStop(1,'rgba(0,0,0,0.4)');
+  ctx.fillStyle = vg;
+  ctx.fillRect(0,0,size,size);
   // oyuncu (merkezde)
-  ctx.fillStyle = '#1565c0';
-  ctx.beginPath();
-  ctx.arc(radius*cell+cell/2, radius*cell+cell/2, cell*0.26, 0, Math.PI*2);
-  ctx.fill();
+  drawEmojiIcon(ctx, '🧑‍🚀', radius*cell, radius*cell, cell, 0.6);
 }
-
-function drawCellWalls(ctx, cellData, x, y, cell){
-  ctx.strokeStyle = '#222';
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  if(cellData.top){ ctx.moveTo(x,y); ctx.lineTo(x+cell,y); }
-  if(cellData.right){ ctx.moveTo(x+cell,y); ctx.lineTo(x+cell,y+cell); }
-  if(cellData.bottom){ ctx.moveTo(x,y+cell); ctx.lineTo(x+cell,y+cell); }
-  if(cellData.left){ ctx.moveTo(x,y); ctx.lineTo(x,y+cell); }
-  ctx.stroke();
-}
-
-function drawWalls(ctx, grid, dim, cell){
-  for(let r=0;r<dim;r++){
-    for(let c=0;c<dim;c++){
-      drawCellWalls(ctx, grid[r][c], c*cell, r*cell, cell);
-    }
-  }
-}
-function drawMarker(){ /* yardımcı, kullanılmıyor */ }
 
 /* ============================================================
    MODAL

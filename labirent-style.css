@@ -69,7 +69,7 @@ body{
   background:#000;border-radius:14px;padding:10px;display:inline-block;box-shadow:0 8px 24px rgba(0,0,0,.6);
   margin-bottom:12px;
 }
-#mazeCanvas{background:#fff;border-radius:8px;display:block;}
+#mazeCanvas{background:#1a1240;border-radius:8px;display:block;}
 
 #dpad{display:flex;flex-direction:column;align-items:center;gap:6px;margin-bottom:12px;}
 .dpadMid{display:flex;gap:60px;}
