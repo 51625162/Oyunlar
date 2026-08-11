@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>PİYANO</title>
+<link rel="stylesheet" href="piyano-style.css">
+</head>
+<body>
+
+<div id="setupScreen">
+  <h1>🎹 <span>PİYANO</span></h1>
+  <p class="subtitle">3 oktavlık piyano — tuşların üzerinde nota isimleri, kayıt ve şarkı eşliği ile</p>
+
+  <div id="resumeBox" style="display:none;text-align:center;margin-bottom:14px;">
+    <button class="primary" id="resumeBtn" style="background:#2e7d32;">▶️ Kaldığın Yerden Devam Et</button>
+  </div>
+
+  <div class="modeBox">
+    <b>Kullanıcı Tipi</b>
+    <label><input type="radio" name="userMode" value="child" checked> 👶 Çocuk — günlük 30 dakika süre sınırı</label>
+    <label><input type="radio" name="userMode" value="parent"> 👨‍👩‍👧 Ebeveyn — şifreli, sınırsız süre</label>
+    <div id="parentPassBox" style="display:none;">
+      <input type="password" id="parentPass" placeholder="Ebeveyn şifresi">
+    </div>
+  </div>
+
+  <p class="hint">Fare/dokunuşla ya da bilgisayar klavyesiyle (Z X C V B N M ve Q W E R T Y U tuşları) çalabilirsin. Çocuk modunda günlük toplam 30 dakika oyun süresi vardır ve diğer oyunlarla ortaktır.</p>
+  <button class="primary" id="startGameBtn">PİYANOYU AÇ</button>
+</div>
+
+<div id="gameScreen">
+  <div id="topbar">
+    <div id="timerDisplay">Sınırsız</div>
+    <button class="tabbtn active" id="tabPlayBtn">🎹 Piyano</button>
+    <button class="tabbtn" id="tabSongBtn">🎵 Şarkı Eşliği</button>
+    <button class="tabbtn" id="tabHelpBtn">❓ Nasıl Kullanılır</button>
+    <button id="endGameBtn">Duraklat</button>
+    <button id="homeBtn">🏠 Oyun Merkezi</button>
+  </div>
+
+  <div id="playTab" class="show">
+    <div id="controls">
+      <div class="ctrlGroup">
+        <label>🔊 Ses</label>
+        <input type="range" id="volumeSlider" min="0" max="100" value="70">
+      </div>
+      <div class="ctrlGroup">
+        <label>🎛️ Ton</label>
+        <select id="waveSelect">
+          <option value="piano">Piyano</option>
+          <option value="synth">Sentezleyici</option>
+          <option value="organ">Org</option>
+        </select>
+      </div>
+      <button id="sustainBtn" class="toggleBtn">🎼 Sustain: Kapalı</button>
+      <button id="recordBtn" class="toggleBtn">⏺️ Kaydet</button>
+      <button id="playRecordBtn" class="toggleBtn" disabled>▶️ Kaydı Çal</button>
+      <button id="clearRecordBtn" class="toggleBtn" disabled>🗑️ Kaydı Sil</button>
+    </div>
+
+    <div id="pianoWrap">
+      <div id="piano"></div>
+    </div>
+
+    <div id="keyLegend">
+      <b>Klavye Kısayolları:</b> Alt oktav → Z X C V B N M (beyaz) / S D G H J (siyah) &nbsp;|&nbsp; Üst oktav → Q W E R T Y U (beyaz) / 2 3 5 6 7 (siyah)
+    </div>
+
+    <div id="log"></div>
+  </div>
+
+  <div id="songTab">
+    <h2>🎵 Şarkı Eşliği</h2>
+    <div id="songList"></div>
+    <div id="songPlayArea" style="display:none;">
+      <div id="songTitle"></div>
+      <div id="songProgress"></div>
+      <button id="stopSongBtn">⏹️ Durdur</button>
+    </div>
+  </div>
+
+  <div id="helpTab">
+    <div class="helpCard">
+      <h2>❓ Piyano Nasıl Kullanılır</h2>
+      <h3>🎹 Çalmak</h3>
+      <p>Tuşlara dokunarak ya da fareyle tıklayarak ses çıkarabilirsin. Her tuşun üzerinde notanın adı yazıyor (Do, Re, Mi... ve İngilizce karşılığı C, D, E...).</p>
+      <h3>⌨️ Bilgisayar Klavyesi</h3>
+      <p>Alt oktav için Z X C V B N M (beyaz tuşlar) ve S D G H J (siyah tuşlar); üst oktav için Q W E R T Y U (beyaz) ve 2 3 5 6 7 (siyah) tuşlarını kullanabilirsin.</p>
+      <h3>🎛️ Kontroller</h3>
+      <ul>
+        <li><b>Ses:</b> Genel ses seviyesini ayarlar.</li>
+        <li><b>Ton:</b> Piyano, sentezleyici veya org sesi arasında seçim yapar.</li>
+        <li><b>Sustain:</b> Açıkken notalar tuştan elini çektikten sonra da bir süre çalmaya devam eder.</li>
+        <li><b>Kaydet / Kaydı Çal:</b> Çaldığın melodiyi kaydedip tekrar dinleyebilirsin.</li>
+      </ul>
+      <h3>🎵 Şarkı Eşliği</h3>
+      <p>"Şarkı Eşliği" sekmesinden basit bir şarkı seç; sırayla hangi tuşa basman gerektiği ekranda vurgulanır.</p>
+      <h3>👶 Çocuk / 👨‍👩‍👧 Ebeveyn Modu</h3>
+      <p>Çocuk modunda günlük toplam 30 dakika süre vardır ve diğer oyunlarla ortaktır.</p>
+    </div>
+  </div>
+</div>
+
+<div id="modalOverlay">
+  <div id="modalBox"></div>
+</div>
+
+<script src="shared-time.js"></script>
+<script src="piyano-script.js"></script>
+</body>
+</html>
