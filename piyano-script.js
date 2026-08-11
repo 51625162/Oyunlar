@@ -176,10 +176,27 @@ document.getElementById('startGameBtn').addEventListener('click', ()=>{
     if(pass !== '1247'){ alert('Ebeveyn şifresi yanlış!'); return; }
   }
   clearState();
+  unlockAudio();
   startSession(mode);
 });
 
+function unlockAudio(){
+  const ctx = getAudioCtx();
+  if(!ctx) return;
+  // Sessiz, çok kısa bir sinyal çalıp durdurarak iOS/Safari'de sesin
+  // ilk kullanıcı dokunuşunda kilidinin açılmasını garantiye alır.
+  try{
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    g.gain.value = 0.0001;
+    osc.connect(g); g.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime+0.05);
+  }catch(e){}
+}
+
 document.getElementById('resumeBtn').addEventListener('click', ()=>{
+  unlockAudio();
   const saved = loadState();
   if(!saved){ alert('Kayıtlı oturum bulunamadı.'); checkResume(); return; }
   G = saved;
@@ -404,6 +421,11 @@ document.getElementById('waveSelect').addEventListener('change', (e)=>{
   if(!G) return;
   G.waveType = e.target.value;
   saveState();
+});
+document.getElementById('testSoundBtn').addEventListener('click', ()=>{
+  unlockAudio();
+  playSuccessSound();
+  log('🔊 Ses testi çalındı — eğer duymadıysan cihazının sessiz anahtarını/ses düzeyini ve Safari sekmesindeki ses simgesini kontrol et.');
 });
 document.getElementById('sustainBtn').addEventListener('click', ()=>{
   if(!G) return;
