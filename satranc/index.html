@@ -107,7 +107,8 @@ function bot(){
  }
  const m=g.move({from:chosen.from,to:chosen.to,promotion:chosen.promotion||'q'});last={from:m.from,to:m.to};busy=false;$('toast').textContent='Bilgisayar ('+({easy:'Kolay',medium:'Orta',hard:'Zor',veryhard:'Çok zor'}[level])+'): '+m.san;render()
 }
-$('learnPiece').onchange=drawLearn;$('showLesson').onclick=drawLearn;$('clearLesson').onclick=clearLesson;drawLearn();\n$('promo').querySelectorAll('button').forEach(b=>b.onclick=()=>{if(!pending)return;let p=b.dataset.p,from=pending.from,to=pending.to;$('promo').classList.remove('show');pending=null;play(from,to,p)});
+$('learnPiece').onchange=drawLearn;$('showLesson').onclick=drawLearn;$('clearLesson').onclick=clearLesson;drawLearn();
+$('promo').querySelectorAll('button').forEach(b=>b.onclick=()=>{if(!pending)return;let p=b.dataset.p,from=pending.from,to=pending.to;$('promo').classList.remove('show');pending=null;play(from,to,p)});
 $('new').onclick=()=>{if(confirm('Yeni oyun başlatılsın mı?'))start()};
 $('undo').onclick=()=>{if(busy)return;g.undo();if($('mode').value==='bot'&&g.turn()==='b'&&g.history().length)g.undo();sel=null;legal=[];last=null;$('toast').textContent='Son hamle(ler) geri alındı.';render()};
 $('flip').onclick=()=>{flip=!flip;theta3+=Math.PI;updateCamera3();render()};$('resetView').onclick=()=>{$('cameraPreset').value='corner';setCameraPreset()};$('cameraPreset').onchange=setCameraPreset;$('colors').onchange=applyColors;$('view').onchange=setView;$('mode').onchange=()=>{start();$('toast').textContent=$('mode').value==='bot'?'Bilgisayara karşı oynuyorsun.':'İki kişilik mod açık.'};$('side').onchange=()=>{if($('mode').value==='bot')start();else $('toast').textContent='Taş rengi tercihi bilgisayara karşı modda kullanılır.'};
