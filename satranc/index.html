@@ -59,7 +59,8 @@ function render3D(){
  renderer3.render(scene3,camera3);
 }
 function pick3(e){if(!threeReady||busy||g.game_over())return;const rect=renderer3.domElement.getBoundingClientRect();const pt=new THREE.Vector2((e.clientX-rect.left)/rect.width*2-1,-((e.clientY-rect.top)/rect.height)*2+1);ray3.setFromCamera(pt,camera3);const hits=ray3.intersectObjects(scene3.children,true);for(const hit of hits){let o=hit.object;while(o&&!o.userData.square)o=o.parent;if(o&&o.userData.square){tap(o.userData.square);return}}}
-function setCameraPreset(){const presets={corner:[Math.PI/4,.85,11],front:[0,.85,11],high:[0,.22,12],low:[0,1.25,11],left:[-Math.PI/2,.82,11],right:[Math.PI/2,.82,11],white:[0,.72,11],black:[Math.PI,.72,11]};const p=presets[$('cameraPreset').value]||presets.corner;theta3=p[0];phi3=p[1];dist3=p[2];updateCamera3();render3D()}\nfunction setView(){const is3=$('view').value==='3d';$('board').style.display=is3?'none':'grid';$('board3d').style.display=is3?'block':'none';if(is3){init3D();setTimeout(()=>{resize3();render3D()},30)}}
+function setCameraPreset(){const presets={corner:[Math.PI/4,.85,11],front:[0,.85,11],high:[0,.22,12],low:[0,1.25,11],left:[-Math.PI/2,.82,11],right:[Math.PI/2,.82,11],white:[0,.72,11],black:[Math.PI,.72,11]};const p=presets[$('cameraPreset').value]||presets.corner;theta3=p[0];phi3=p[1];dist3=p[2];updateCamera3();render3D()}
+function setView(){const is3=$('view').value==='3d';$('board').style.display=is3?'none':'grid';$('board3d').style.display=is3?'block':'none';if(is3){init3D();setTimeout(()=>{resize3();render3D()},30)}}
 
 function start(){g=new Chess();sel=null;legal=[];last=null;busy=false;pending=null;$('promo').classList.remove('show');$('toast').textContent='';render()}
 function render(){const board=$('board');board.innerHTML='';
