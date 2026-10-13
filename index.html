@@ -6,75 +6,35 @@
 <title>Oyun Merkezi</title>
 <style>
   *{box-sizing:border-box;}
-  body{
-    margin:0;min-height:100vh;font-family:'Segoe UI',Arial,sans-serif;
-    background:linear-gradient(135deg,#1b2430,#2e3b52);
-    display:flex;align-items:center;justify-content:center;padding:24px;
-  }
+  body{margin:0;min-height:100vh;font-family:'Segoe UI',Arial,sans-serif;background:linear-gradient(135deg,#1b2430,#2e3b52);display:flex;align-items:center;justify-content:center;padding:24px;}
   .wrap{max-width:760px;width:100%;text-align:center;}
   h1{color:#fff;font-size:32px;margin-bottom:6px;}
   p.sub{color:#b8c2d4;margin-top:0;margin-bottom:30px;}
   .cards{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;}
-  .card{
-    background:#fff;border-radius:16px;padding:26px;width:100%;max-width:320px;
-    box-shadow:0 10px 30px rgba(0,0,0,.35);text-decoration:none;color:#222;
-    display:block;transition:transform .15s;
-  }
+  .card{background:#fff;border-radius:16px;padding:26px;width:100%;max-width:320px;box-shadow:0 10px 30px rgba(0,0,0,.35);text-decoration:none;color:#222;display:block;transition:transform .15s;}
   .card:hover{transform:translateY(-6px);}
   .card .icon{font-size:56px;margin-bottom:10px;}
   .card h2{margin:6px 0;font-size:22px;}
   .card p{color:#666;font-size:14px;margin:0;}
-  .card.molicity h2{color:#c62828;}
-  .card.uno h2{color:#1e88e5;}
-  .card.pandomim h2{color:#6a11cb;}
-  .card.carkifelek h2{color:#ee0979;}
-  .card.piyano h2{color:#2c3e50;}
-  .badge{
-    display:inline-block;margin-top:12px;padding:6px 16px;border-radius:20px;font-size:13px;
-    font-weight:bold;color:#fff;
-  }
-  .card.molicity .badge{background:#c62828;}
-  .card.uno .badge{background:#1e88e5;}
-  .card.pandomim .badge{background:#6a11cb;}
-  .card.carkifelek .badge{background:#ee0979;}
-  .card.piyano .badge{background:#2c3e50;}
+  .card.molicity h2{color:#c62828}.card.uno h2{color:#1e88e5}.card.pandomim h2{color:#6a11cb}.card.carkifelek h2{color:#ee0979}.card.piyano h2{color:#2c3e50}.card.empire h2{color:#9b6b19}
+  .badge{display:inline-block;margin-top:12px;padding:6px 16px;border-radius:20px;font-size:13px;font-weight:bold;color:#fff;}
+  .card.molicity .badge{background:#c62828}.card.uno .badge{background:#1e88e5}.card.pandomim .badge{background:#6a11cb}.card.carkifelek .badge{background:#ee0979}.card.piyano .badge{background:#2c3e50}.card.empire .badge{background:#9b6b19}
 </style>
 </head>
 <body>
   <div class="wrap">
     <h1>🎮 Oyun Merkezi</h1>
-    <p class="sub">Oynamak istediğin oyunu seç — her oyun bağımsız çalışır, kendi ilerlemesini ayrı ayrı kaydeder. Çocuk modunda günlük 30 dakikalık oyun süresi tüm oyunlar arasında ortaktır.</p>
+    <p class="sub">Oynamak istediğin oyunu seç — her oyun bağımsız çalışır ve ilerlemesini kendi cihazında kaydeder.</p>
     <div class="cards">
-      <a class="card molicity" href="molicity.html">
-        <div class="icon">🏙️</div>
-        <h2>MOLİCİTY</h2>
-        <p>Dünya Ticaret Oyunu — arsa al, kira topla, en zengin oyuncu ol.</p>
-        <span class="badge">2-4 Oyuncu</span>
+      <a class="card empire" href="imparatorluk/">
+        <div class="icon">👑</div><h2>TAHT & TOPRAKLAR</h2>
+        <p>Krallığını kur, ekonomini geliştir, ordunu büyüt ve dokuz bölgeyi fethederek imparator ol.</p><span class="badge">Strateji • Tek Oyuncu</span>
       </a>
-      <a class="card uno" href="uno.html">
-        <div class="icon">🃏</div>
-        <h2>UNO</h2>
-        <p>Kağıtlarını bitir, puanları topla — 2-4 oyuncu, eksikler bilgisayarla tamamlanır.</p>
-        <span class="badge">2-4 Oyuncu</span>
-      </a>
-      <a class="card pandomim" href="pandomim.html">
-        <div class="icon">🎭</div>
-        <h2>PANDOMİM</h2>
-        <p>Resmi anlat, yasaklı kelimeleri kullanma — bireysel veya takım halinde oynanır.</p>
-        <span class="badge">2+ Kişi / Takım</span>
-      </a>
-      <a class="card carkifelek" href="carkifelek.html">
-        <div class="icon">🎡</div>
-        <h2>ÇARKIFELEK</h2>
-        <p>Çarkı çevir, harfi tahmin et, kelimeyi ilk bulan turu kazanır.</p>
-        <span class="badge">2-4 Oyuncu</span>
-      </a>
-      <a class="card piyano" href="piyano.html">
-        <div class="icon">🎹</div>
-        <h2>PİYANO</h2>
-        <p>3 oktavlık piyano — notalı tuşlar, kayıt/tekrar ve şarkı eşliği.</p>
-        <span class="badge">Tek Kullanıcı</span>
-      </a>
+      <a class="card molicity" href="molicity.html"><div class="icon">🏙️</div><h2>MOLİCİTY</h2><p>Dünya Ticaret Oyunu — arsa al, kira topla, en zengin oyuncu ol.</p><span class="badge">2-4 Oyuncu</span></a>
+      <a class="card uno" href="uno.html"><div class="icon">🃏</div><h2>UNO</h2><p>Kağıtlarını bitir, puanları topla — 2-4 oyuncu, eksikler bilgisayarla tamamlanır.</p><span class="badge">2-4 Oyuncu</span></a>
+      <a class="card pandomim" href="pandomim.html"><div class="icon">🎭</div><h2>PANDOMİM</h2><p>Resmi anlat, yasaklı kelimeleri kullanma — bireysel veya takım halinde oynanır.</p><span class="badge">2+ Kişi / Takım</span></a>
+      <a class="card carkifelek" href="carkifelek.html"><div class="icon">🎡</div><h2>ÇARKIFELEK</h2><p>Çarkı çevir, harfi tahmin et, kelimeyi ilk bulan turu kazanır.</p><span class="badge">2-4 Oyuncu</span></a>
+      <a class="card piyano" href="piyano.html"><div class="icon">🎹</div><h2>PİYANO</h2><p>3 oktavlık piyano — notalı tuşlar, kayıt/tekrar ve şarkı eşliği.</p><span class="badge">Tek Kullanıcı</span></a>
     </div>
   </div>
 </body>
